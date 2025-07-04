@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIV Qualification Tool</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>NIV Qualification Tool</h1>
+    
+    <div id="qualification-form">
+        <!-- Diagnosis Section -->
+        <h2>1. Patient Diagnosis</h2>
+        <div>
+            <label>What is the patient's diagnosis?</label>
+            <input type="radio" id="diagnosis-neuro" name="diagnosis" value="neuromuscular">
+            <label for="diagnosis-neuro">Neuromuscular Disease</label>
+            <input type="radio" id="diagnosis-thoracic" name="diagnosis" value="thoracic">
+            <label for="diagnosis-thoracic">Thoracic Restrictive Disease</label>
+            <input type="radio" id="diagnosis-copd" name="diagnosis" value="copd">
+            <label for="diagnosis-copd">COPD</label>
+        </div>
+
+        <!-- SWO Section -->
+        <h2>2. Standard Written Order (SWO)</h2>
+        <div>
+            <label>Do we have a SWO?</label>
+            <input type="radio" id="swo-yes" name="swo" value="yes">
+            <label for="swo-yes">Yes</label>
+            <input type="radio" id="swo-no" name="swo" value="no">
+            <label for="swo-no">No</label>
+        </div>
+        <div id="swo-detail" class="hidden">
+            <label>Does the SWO have detailed item description?</label>
+            <input type="radio" id="swo-detail-yes" name="swo-detail" value="yes">
+            <label for="swo-detail-yes">Yes</label>
+            <input type="radio" id="swo-detail-no" name="swo-detail" value="no">
+            <label for="swo-detail-no">No</label>
+        </div>
+
+        <!-- PRN Section -->
+        <h2>3. Order Type</h2>
+        <div>
+            <label>Do the orders state only "PRN" or "as needed"?</label>
+            <input type="radio" id="prn-yes" name="prn" value="yes">
+            <label for="prn-yes">Yes</label>
+            <input type="radio" id="prn-no" name="prn" value="no">
+            <label for="prn-no">No</label>
+        </div>
+
+        <!-- Lab Results Section -->
+        <h2>4. Lab Results</h2>
+        <div id="lab-results">
+            <!-- Lab results questions will be added dynamically based on diagnosis -->
+        </div>
+
+        <!-- Chart Notes Section -->
+        <h2>5. Chart Notes</h2>
+        <div>
+            <label>Do you have chart notes and qualifying test results from within 12 months?</label>
+            <input type="radio" id="chart-notes-yes" name="chart-notes" value="yes">
+            <label for="chart-notes-yes">Yes</label>
+            <input type="radio" id="chart-notes-no" name="chart-notes" value="no">
+            <label for="chart-notes-no">No</label>
+        </div>
+
+        <button onclick="determineQualification()">Determine Qualification</button>
+    </div>
+
+    <div id="qualification-result" class="hidden">
+        <h2>Qualification Result</h2>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        function determineQualification() {
+            const diagnosis = document.querySelector('input[name="diagnosis"]:checked').value;
+            const swo = document.querySelector('input[name="swo"]:checked').value;
+            const swoDetail = document.querySelector('input[name="swo-detail"]:checked') ? document.querySelector('input[name="swo-detail"]:checked').value : null;
+            const prn = document.querySelector('input[name="prn"]:checked').value;
+            const chartNotes = document.querySelector('input[name="chart-notes"]:checked').value;
+
+            let qualificationStatus = 'Not Approved';
+
+            if (diagnosis === 'neuromuscular') {
+                if (swo === 'yes' && swoDetail === 'yes' && prn === 'no' && chartNotes === 'yes') {
+                    qualificationStatus = 'Approved';
+                }
+            } else if (diagnosis === 'thoracic') {
+                if (swo === 'yes' && swoDetail === 'yes' && prn === 'no' && chartNotes === 'yes') {
+                    qualificationStatus = 'Approved';
+                }
+            } else if (diagnosis === 'copd') {
+                if (swo === 'yes' && swoDetail === 'yes' && prn === 'no' && chartNotes === 'yes') {
+                    qualificationStatus = 'Approved';
+                }
+            }
+
+            document.getElementById('result').textContent = qualificationStatus;
+            document.getElementById('qualification-form').classList.add('hidden');
+            document.getElementById('qualification-result').classList.remove('hidden');
+        }
+
+        // Add event listeners to show/hide sections based on user input
+        document.addEventListener('DOMContentLoaded', function() {
+            // SWO section
+            document.querySelectorAll('input[name="swo"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const swoDetailSection = document.getElementById('swo-detail');
+                    if (this.value === 'yes') {
+                        swoDetailSection.classList.remove('hidden');
+                    } else {
+                        swoDetailSection.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
