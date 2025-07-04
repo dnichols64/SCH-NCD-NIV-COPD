@@ -1,0 +1,2348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIV Qualification Tool</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-size: 22px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: border-color 0.3s;
+        }
+
+        .question.qualified {
+            border: 2px solid #28a745;
+            background-color: #f8fff9;
+        }
+
+        .question.not-qualified {
+            border: 2px solid #dc3545;
+            background-color: #fff8f8;
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .radio-option:hover {
+            background-color: #e3f2fd;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .radio-option label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .checkbox-group > div {
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group > div:last-child {
+            margin-bottom: 0;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .checkbox-option input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        input[type="number"] {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            width: 150px;
+        }
+
+        .value-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .value-status {
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .value-qualified {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .value-not-qualified {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        .approved {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .not-approved {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .summary {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #f0f4f8;
+            border-radius: 10px;
+            border: 2px solid #d0d9e3;
+        }
+
+        .summary h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .copy-section {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .nested-question {
+            margin-left: 30px;
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #f0f4f8;
+            border-left: 3px solid #3498db;
+            border-radius: 5px;
+        }
+
+        .nested-question .question-text {
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .nested-question.qualified {
+            background-color: #f0fff4;
+            border-left-color: #28a745;
+        }
+
+        .nested-question.not-qualified {
+            background-color: #fff5f5;
+            border-left-color: #dc3545;
+        }
+
+        .nested-question .radio-group {
+            margin-top: 10px;
+        }
+
+        .nested-question .radio-option {
+            padding: 8px;
+            font-size: 14px;
+        }
+
+        #q-qualifying-conditions .checkbox-option {
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+        }
+
+        #q-qualifying-conditions .checkbox-option:hover {
+            background-color: #e9ecef;
+        }
+
+        #q-qualifying-conditions label {
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            margin-top: 20px;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .copy-button {
+            background-color: #27ae60;
+        }
+
+        .copy-button:hover {
+            background-color: #229954;
+        }
+
+        .edit-button {
+            background-color: #9b59b6;
+        }
+
+        .edit-button:hover {
+            background-color: #8e44ad;
+        }
+
+        .section-status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .section-approved {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .section-not-approved {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .final-status {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .final-approved {
+            background-color: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .final-not-approved {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .copy-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NIV Qualification Tool</h1>
+        
+        <div id="questionnaire">
+            <!-- Section 1: SWO -->
+            <h2>1. Standard Written Order (SWO)</h2>
+            <div class="question" id="q-swo">
+                <div class="question-text">Do we have a SWO (Standard Written Order or Rx)?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="swo-yes" name="swo" value="yes">
+                        <label for="swo-yes">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="swo-no" name="swo" value="no">
+                        <label for="swo-no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question hidden" id="q-swo-detail">
+                <div class="question-text">Does the SWO have detailed item description (e.g., "non-invasive ventilator" or "NIV")?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="swo-detail-yes" name="swo-detail" value="yes">
+                        <label for="swo-detail-yes">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="swo-detail-no" name="swo-detail" value="no">
+                        <label for="swo-detail-no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: PRN -->
+            <h2>2. Order Type</h2>
+            <div class="question" id="q-prn">
+                <div class="question-text">Do the Orders only state "PRN" or "as needed"?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="prn-yes" name="prn" value="yes">
+                        <label for="prn-yes">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="prn-no" name="prn" value="no">
+                        <label for="prn-no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Diagnosis -->
+            <h2>3. Patient Diagnosis</h2>
+            <div class="question" id="q-diagnosis">
+                <div class="question-text">Does the patient have one of the following diagnoses?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="diagnosis-neuro" name="diagnosis" value="neuromuscular">
+                        <label for="diagnosis-neuro">Neuromuscular Disease</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="diagnosis-thoracic" name="diagnosis" value="thoracic">
+                        <label for="diagnosis-thoracic">Thoracic Restrictive Disease</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="diagnosis-copd" name="diagnosis" value="copd">
+                        <label for="diagnosis-copd">COPD</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="diagnosis-none" name="diagnosis" value="none">
+                        <label for="diagnosis-none">None of the above</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OHS Questions for Thoracic Restrictive Disease -->
+            <div id="ohs-section" class="hidden">
+                <div class="question" id="q-ohs">
+                    <div class="question-text">Is Obesity Hypoventilation Syndrome (OHS) the root cause?</div>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="ohs-yes" name="ohs" value="yes">
+                            <label for="ohs-yes">Yes</label>
+                        </div>
+                        
+                        <div class="checkbox-option" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #dee2e6;">
+                            <input type="checkbox" id="lab-none-thoracic" name="labs-thoracic" value="none">
+                            <label for="lab-none-thoracic">None of the above</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="ohs-no" name="ohs" value="no">
+                            <label for="ohs-no">No</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question hidden" id="q-bmi-value">
+                    <div class="question-text">What is the patient's BMI?</div>
+                    <div class="value-input-container">
+                        <input type="number" id="bmi-value" step="0.1" placeholder="Enter BMI">
+                        <span id="bmi-status" class="value-status hidden"></span>
+                    </div>
+                </div>
+
+                <div class="question hidden" id="q-bmi-charted">
+                    <div class="question-text">Is the BMI specifically charted in the chart notes?</div>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="bmi-charted-yes" name="bmi-charted" value="yes">
+                            <label for="bmi-charted-yes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="bmi-charted-no" name="bmi-charted" value="no">
+                            <label for="bmi-charted-no">No</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Lab Results -->
+            <div id="lab-section" class="hidden">
+                <h2>4. Lab Results for Neuromuscular Disease</h2>
+                <div class="question">
+                    <div class="question-text">Select all available lab results:</div>
+                    <div class="checkbox-group">
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-abg" name="labs" value="abg">
+                                <label for="lab-abg">ABG with pCO2</label>
+                            </div>
+                            <div class="nested-question hidden" id="q-abg-value">
+                                <div class="question-text">What is the ABG pCO2 value (mmHg)?</div>
+                                <div class="value-input-container">
+                                    <input type="number" id="abg-value" step="0.1" placeholder="Enter pCO2 value">
+                                    <span id="abg-status" class="value-status hidden"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-pft" name="labs" value="pft">
+                                <label for="lab-pft">PFT/Spirometry FVC</label>
+                            </div>
+                            <div class="nested-question hidden" id="q-pft-value">
+                                <div class="question-text">What is the FVC percentage?</div>
+                                <div class="value-input-container">
+                                    <input type="number" id="pft-value" step="0.1" placeholder="Enter FVC %">
+                                    <span id="pft-status" class="value-status hidden"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-pft-interp" name="labs" value="pft-interp">
+                                <label for="lab-pft-interp">PFT with MD interpretation that correlates with Dx</label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-mip" name="labs" value="mip">
+                                <label for="lab-mip">MIP (Maximum Inspiratory Pressure)</label>
+                            </div>
+                            <div class="nested-question hidden" id="q-mip-value">
+                                <div class="question-text">What is the MIP value (cmH2O)?</div>
+                                <div class="value-input-container">
+                                    <input type="number" id="mip-value" step="0.1" placeholder="Enter MIP value">
+                                    <span id="mip-status" class="value-status hidden"></span>
+                                </div>
+                                <small style="color: #6c757d; display: block; margin-top: 5px;">Note: Values less negative than -60 (e.g., -50, -40) are qualified</small>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-etco2" name="labs" value="etco2">
+                                <label for="lab-etco2">End Tidal CO2 (ETCO2)</label>
+                            </div>
+                            <div class="nested-question hidden" id="q-etco2-value">
+                                <div class="question-text">What is the ETCO2 value (mmHg)?</div>
+                                <div class="value-input-container">
+                                    <input type="number" id="etco2-value" step="0.1" placeholder="Enter ETCO2 value">
+                                    <span id="etco2-status" class="value-status hidden"></span>
+                                </div>
+                                <small style="color: #6c757d; display: block; margin-top: 5px;">Note: Both value >43 AND duration ≥5 minutes are required for qualification</small>
+                            </div>
+                            <div class="nested-question hidden" id="q-etco2-duration">
+                                <div class="question-text">Is the ETCO2 testing 5 minutes or more cumulative?</div>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="etco2-duration-yes" name="etco2-duration" value="yes">
+                                        <label for="etco2-duration-yes">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="etco2-duration-no" name="etco2-duration" value="no">
+                                        <label for="etco2-duration-no">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-tcco2" name="labs" value="tcco2">
+                                <label for="lab-tcco2">Transcutaneous Carbon Dioxide (TcCO2)</label>
+                            </div>
+                            <div class="nested-question hidden" id="q-tcco2-value">
+                                <div class="question-text">What is the Transcutaneous Carbon Dioxide value (mmHg)?</div>
+                                <div class="value-input-container">
+                                    <input type="number" id="tcco2-value" step="0.1" placeholder="Enter TcCO2 value">
+                                    <span id="tcco2-status" class="value-status hidden"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-vbg" name="labs" value="vbg">
+                                <label for="lab-vbg">VBG with pCO2</label>
+                            </div>
+                            <div class="nested-question hidden" id="q-vbg-value">
+                                <div class="question-text">What is the VBG pCO2 value (mmHg)?</div>
+                                <div class="value-input-container">
+                                    <input type="number" id="vbg-value" step="0.1" placeholder="Enter VBG pCO2 value">
+                                    <span id="vbg-status" class="value-status hidden"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox-option" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #dee2e6;">
+                            <input type="checkbox" id="lab-none" name="labs" value="none">
+                            <label for="lab-none">None of the above</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4B: Lab Results for Thoracic Restrictive Disease -->
+            <div id="lab-section-thoracic" class="hidden">
+                <h2>4. Lab Results for Thoracic Restrictive Disease</h2>
+                <div class="question">
+                    <div class="question-text">Select all available lab results:</div>
+                    <div class="checkbox-group">
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-abg-thoracic" name="labs-thoracic" value="abg">
+                                <label for="lab-abg-thoracic">ABG with pCO2</label>
+                            </div>
+                            <div class="nested-question hidden" id="q-abg-value-thoracic">
+                                <div class="question-text">What is the ABG pCO2 value (mmHg)?</div>
+                                <div class="value-input-container">
+                                    <input type="number" id="abg-value-thoracic" step="0.1" placeholder="Enter pCO2 value">
+                                    <span id="abg-status-thoracic" class="value-status hidden"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-pft-thoracic" name="labs-thoracic" value="pft">
+                                <label for="lab-pft-thoracic">PFT/Spirometry FVC</label>
+                            </div>
+                            <div class="nested-question hidden" id="q-pft-value-thoracic">
+                                <div class="question-text">What is the FVC percentage?</div>
+                                <div class="value-input-container">
+                                    <input type="number" id="pft-value-thoracic" step="0.1" placeholder="Enter FVC %">
+                                    <span id="pft-status-thoracic" class="value-status hidden"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-pft-interp-thoracic" name="labs-thoracic" value="pft-interp">
+                                <label for="lab-pft-interp-thoracic">PFT with MD interpretation that correlates with Dx</label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-etco2-thoracic" name="labs-thoracic" value="etco2">
+                                <label for="lab-etco2-thoracic">End Tidal CO2 (ETCO2)</label>
+                            </div>
+                            <div class="nested-question hidden" id="q-etco2-value-thoracic">
+                                <div class="question-text">What is the ETCO2 value (mmHg)?</div>
+                                <div class="value-input-container">
+                                    <input type="number" id="etco2-value-thoracic" step="0.1" placeholder="Enter ETCO2 value">
+                                    <span id="etco2-status-thoracic" class="value-status hidden"></span>
+                                </div>
+                                <small style="color: #6c757d; display: block; margin-top: 5px;">Note: Both value >43 AND duration ≥5 minutes are required for qualification</small>
+                            </div>
+                            <div class="nested-question hidden" id="q-etco2-duration-thoracic">
+                                <div class="question-text">Is the ETCO2 testing 5 minutes or more cumulative?</div>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="etco2-duration-yes-thoracic" name="etco2-duration-thoracic" value="yes">
+                                        <label for="etco2-duration-yes-thoracic">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="etco2-duration-no-thoracic" name="etco2-duration-thoracic" value="no">
+                                        <label for="etco2-duration-no-thoracic">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-tcco2-thoracic" name="labs-thoracic" value="tcco2">
+                                <label for="lab-tcco2-thoracic">Transcutaneous Carbon Dioxide (TcCO2)</label>
+                            </div>
+                            <div class="nested-question hidden" id="q-tcco2-value-thoracic">
+                                <div class="question-text">What is the Transcutaneous Carbon Dioxide value (mmHg)?</div>
+                                <div class="value-input-container">
+                                    <input type="number" id="tcco2-value-thoracic" step="0.1" placeholder="Enter TcCO2 value">
+                                    <span id="tcco2-status-thoracic" class="value-status hidden"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-vbg-thoracic" name="labs-thoracic" value="vbg">
+                                <label for="lab-vbg-thoracic">VBG with pCO2</label>
+                            </div>
+                            <div class="nested-question hidden" id="q-vbg-value-thoracic">
+                                <div class="question-text">What is the VBG pCO2 value (mmHg)?</div>
+                                <div class="value-input-container">
+                                    <input type="number" id="vbg-value-thoracic" step="0.1" placeholder="Enter VBG pCO2 value">
+                                    <span id="vbg-status-thoracic" class="value-status hidden"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COPD Section -->
+            <div id="copd-section" class="hidden">
+                <h2>4. COPD Specific Requirements</h2>
+                <div class="question" id="q-chronic-resp-failure">
+                    <div class="question-text">Is Chronic Respiratory Failure consequent to COPD?</div>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="chronic-resp-yes" name="chronic-resp-failure" value="yes">
+                            <label for="chronic-resp-yes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="chronic-resp-no" name="chronic-resp-failure" value="no">
+                            <label for="chronic-resp-no">No</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="question hidden" id="q-patient-location">
+                    <div class="question-text">Where is the patient located?</div>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="location-inpatient" name="patient-location" value="inpatient">
+                            <label for="location-inpatient">Inpatient (hospital discharge)</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="location-outpatient" name="patient-location" value="outpatient">
+                            <label for="location-outpatient">Outpatient (home)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Inpatient Questions -->
+                <div id="inpatient-questions" class="hidden">
+                    <div class="question" id="q-exceeds-rad">
+                        <div class="question-text">Does the patient's need exceed a RAD (with or without backup rate feature) during the hospital stay?</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="exceeds-rad-yes" name="exceeds-rad" value="yes">
+                                <label for="exceeds-rad-yes">Yes</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="exceeds-rad-no" name="exceeds-rad" value="no">
+                                <label for="exceeds-rad-no">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question" id="q-used-ventilator">
+                        <div class="question-text">Did the patient use a ventilator or a RAD on ventilator settings in the 24 hours preceding discharge?</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="used-ventilator-yes" name="used-ventilator" value="yes">
+                                <label for="used-ventilator-yes">Yes</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="used-ventilator-no" name="used-ventilator" value="no">
+                                <label for="used-ventilator-no">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question" id="q-risks-exacerbation">
+                        <div class="question-text">The patient risks rapid symptom exacerbation OR a rise in PaCO2 following discharge?</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="risks-exacerbation-yes" name="risks-exacerbation" value="yes">
+                                <label for="risks-exacerbation-yes">Yes</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="risks-exacerbation-no" name="risks-exacerbation" value="no">
+                                <label for="risks-exacerbation-no">No</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Outpatient Questions -->
+                <div id="outpatient-questions" class="hidden">
+                    <div class="question" id="q-sleep-apnea">
+                        <div class="question-text">Is sleep apnea noted as NOT being the primary cause? (formal sleep testing is not required if, per the treating clinician, the patient does not experience sleep apnea as the predominant cause of the hypercapnia)</div>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="sleep-apnea-yes" name="sleep-apnea" value="yes">
+                                <label for="sleep-apnea-yes">Yes</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="sleep-apnea-no" name="sleep-apnea" value="no">
+                                <label for="sleep-apnea-no">No</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question" id="q-qualifying-conditions">
+                        <div class="question-text">Select at least one of the following qualifying conditions:</div>
+                        <div class="checkbox-group">
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="condition-oxygen" name="qualifying-conditions" value="oxygen">
+                                <label for="condition-oxygen">Requires oxygen therapy at an FiO2 ≥ 36% or ≥ 4L nasally</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="condition-8hours" name="qualifying-conditions" value="8hours">
+                                <label for="condition-8hours">Requires ventilatory support for more than 8 hours per 24-hour period</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="condition-alarms" name="qualifying-conditions" value="alarms">
+                                <label for="condition-alarms">Requires the alarms and internal battery of an NIV because the patient is unable to effectively breathe on their own for more than a few hours, and the unrecognized interruption of ventilatory support is likely to cause a life-threatening condition as determined by the treating clinician</label>
+                            </div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="condition-rad-limitations" name="qualifying-conditions" value="rad-limitations">
+                                <label for="condition-rad-limitations">Per the treating clinician, none of the following are likely to be achieved with consistent use of a RAD with backup rate feature for at least 4 hours per 24-hour period on at least 70% of days because the patient's needs exceed the capabilities of a RAD as justified by the patient's medical condition: Normalization (<46 mmHg) of PaCO2, OR Stabilization of a rising PaCO2, OR 20% reduction in PaCO2 from the baseline value, OR Improvement of at least one of the following patient symptoms associated with chronic hypercapnia: Headache, Fatigue, Shortness of breath, Confusion, Sleep quality</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COPD Lab Section -->
+            <div id="lab-section-copd" class="hidden">
+                <h2>5. COPD Lab Results</h2>
+                <div class="question">
+                    <div class="question-text">ABG Test</div>
+                    <div class="checkbox-group">
+                        <div>
+                            <div class="checkbox-option">
+                                <input type="checkbox" id="lab-abg-copd" name="labs-copd" value="abg">
+                                <label for="lab-abg-copd">ABG with pCO2</label>
+                            </div>
+                            <div class="nested-question hidden" id="q-abg-value-copd">
+                                <div class="question-text">What is the ABG pCO2 value (mmHg)?</div>
+                                <div class="value-input-container">
+                                    <input type="number" id="abg-value-copd" step="0.1" placeholder="Enter pCO2 value">
+                                    <span id="abg-status-copd" class="value-status hidden"></span>
+                                </div>
+                                <small style="color: #6c757d; display: block; margin-top: 5px;">Note: Value must be ≥52 to qualify</small>
+                            </div>
+                            <div class="nested-question hidden" id="q-abg-awake-copd">
+                                <div class="question-text">Was the ABG drawn during awake hours while breathing prescribed FiO2?</div>
+                                <div class="radio-group">
+                                    <div class="radio-option">
+                                        <input type="radio" id="abg-awake-yes-copd" name="abg-awake-copd" value="yes">
+                                        <label for="abg-awake-yes-copd">Yes</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="abg-awake-no-copd" name="abg-awake-copd" value="no">
+                                        <label for="abg-awake-no-copd">No</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5/6/7: Chart Notes -->
+            <h2 id="chart-notes-heading">Chart Notes and Documentation</h2>
+            <div class="question" id="q-chart-12months">
+                <div class="question-text">Do you have chart notes and qualifying test results from within 12 months?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="chart-12months-yes" name="chart-12months" value="yes">
+                        <label for="chart-12months-yes">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="chart-12months-no" name="chart-12months" value="no">
+                        <label for="chart-12months-no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" id="q-evaluated">
+                <div class="question-text">Was the patient evaluated and/or treated for an approved disease category?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="evaluated-yes" name="evaluated" value="yes">
+                        <label for="evaluated-yes">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="evaluated-no" name="evaluated" value="no">
+                        <label for="evaluated-no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" id="q-charting-support">
+                <div class="question-text">Does the charting support the need or clinical evidence of the need of vent therapy based on the approved disease category?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="charting-support-yes" name="charting-support" value="yes">
+                        <label for="charting-support-yes">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="charting-support-no" name="charting-support" value="no">
+                        <label for="charting-support-no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" id="q-exceeds-bipap">
+                <div class="question-text">Do the patient needs exceed or is unlikely to achieve ideal clinical improvements using a BiPAP (RAD)?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="exceeds-bipap-yes" name="exceeds-bipap" value="yes">
+                        <label for="exceeds-bipap-yes">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="exceeds-bipap-no" name="exceeds-bipap" value="no">
+                        <label for="exceeds-bipap-no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" id="q-conflicting-docs">
+                <div class="question-text">Do the chart notes contain conflicting documentation on the patient's condition?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="conflicting-docs-yes" name="conflicting-docs" value="yes">
+                        <label for="conflicting-docs-yes">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="conflicting-docs-no" name="conflicting-docs" value="no">
+                        <label for="conflicting-docs-no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" id="q-interchangeable">
+                <div class="question-text">Do the medical records contain usage of "BiPAP" and "ventilator" terminology interchangeably?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="interchangeable-yes" name="interchangeable" value="yes">
+                        <label for="interchangeable-yes">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="interchangeable-no" name="interchangeable" value="no">
+                        <label for="interchangeable-no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question" id="q-conflicting-terminology">
+                <div class="question-text">Is there any conflicting terminology that needs physician clarification?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="conflicting-terminology-yes" name="conflicting-terminology" value="yes">
+                        <label for="conflicting-terminology-yes">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="conflicting-terminology-no" name="conflicting-terminology" value="no">
+                        <label for="conflicting-terminology-no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="generateSummary()">Generate Summary</button>
+        </div>
+
+        <div id="summary" class="summary hidden">
+            <h3>Qualification Summary</h3>
+            <div class="copy-section" id="copy-content"></div>
+            <button class="copy-button" onclick="copyToClipboard()">Copy Summary to Clipboard</button>
+            <button class="edit-button" onclick="backToQuestions()">Edit Answers</button>
+        </div>
+    </div>
+
+    <div class="copy-notification" id="copyNotification">Summary copied to clipboard!</div>
+
+    <script>
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // SWO listeners
+            document.querySelectorAll('input[name="swo"]').forEach(radio => {
+                radio.addEventListener('change', handleSWOChange);
+            });
+
+            // Diagnosis listener
+            document.querySelectorAll('input[name="diagnosis"]').forEach(radio => {
+                radio.addEventListener('change', handleDiagnosisChange);
+            });
+
+            // Lab checkboxes listeners
+            document.querySelectorAll('input[name="labs"]').forEach(checkbox => {
+                checkbox.addEventListener('change', handleLabChange);
+            });
+
+            // Lab checkboxes listeners for thoracic
+            document.querySelectorAll('input[name="labs-thoracic"]').forEach(checkbox => {
+                checkbox.addEventListener('change', handleLabChangeThoracic);
+            });
+
+            // Lab checkboxes listeners for COPD
+            document.querySelectorAll('input[name="labs-copd"]').forEach(checkbox => {
+                checkbox.addEventListener('change', handleLabChangeCOPD);
+            });
+
+            // OHS listeners
+            document.querySelectorAll('input[name="ohs"]').forEach(radio => {
+                radio.addEventListener('change', handleOHSChange);
+            });
+
+            // COPD listeners
+            document.querySelectorAll('input[name="chronic-resp-failure"]').forEach(radio => {
+                radio.addEventListener('change', handleChronicRespFailureChange);
+            });
+
+            document.querySelectorAll('input[name="patient-location"]').forEach(radio => {
+                radio.addEventListener('change', handlePatientLocationChange);
+            });
+
+            // Handle "None of the above" checkbox for thoracic
+            document.getElementById('lab-none-thoracic').addEventListener('change', function() {
+                if (this.checked) {
+                    document.querySelectorAll('input[name="labs-thoracic"]:not(#lab-none-thoracic)').forEach(cb => {
+                        cb.checked = false;
+                        cb.disabled = true;
+                    });
+                    hideAllLabQuestionsThoracic();
+                } else {
+                    document.querySelectorAll('input[name="labs-thoracic"]:not(#lab-none-thoracic)').forEach(cb => {
+                        cb.disabled = false;
+                    });
+                }
+            });
+
+            // Handle other thoracic lab checkboxes
+            document.querySelectorAll('input[name="labs-thoracic"]:not(#lab-none-thoracic)').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        document.getElementById('lab-none-thoracic').checked = false;
+                    }
+                });
+            });
+
+            // Handle "None of the above" checkbox
+            document.getElementById('lab-none').addEventListener('change', function() {
+                if (this.checked) {
+                    document.querySelectorAll('input[name="labs"]:not(#lab-none)').forEach(cb => {
+                        cb.checked = false;
+                        cb.disabled = true;
+                    });
+                    hideAllLabQuestions();
+                } else {
+                    document.querySelectorAll('input[name="labs"]:not(#lab-none)').forEach(cb => {
+                        cb.disabled = false;
+                    });
+                }
+            });
+
+            // Handle other lab checkboxes
+            document.querySelectorAll('input[name="labs"]:not(#lab-none)').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        document.getElementById('lab-none').checked = false;
+                    }
+                });
+            });
+
+            // Add real-time validation for all inputs
+            setupRealTimeValidation();
+        });
+
+        function setupRealTimeValidation() {
+            // Radio button questions with qualification status
+            const radioQuestions = [
+                { name: 'swo', element: 'q-swo', qualifiedValue: 'yes' },
+                { name: 'swo-detail', element: 'q-swo-detail', qualifiedValue: 'yes' },
+                { name: 'prn', element: 'q-prn', qualifiedValue: 'no' },
+                { name: 'diagnosis', element: 'q-diagnosis', qualifiedValue: ['neuromuscular', 'thoracic', 'copd'] },
+                { name: 'bmi-charted', element: 'q-bmi-charted', qualifiedValue: 'yes' },
+                { name: 'chronic-resp-failure', element: 'q-chronic-resp-failure', qualifiedValue: 'yes' },
+                { name: 'exceeds-rad', element: 'q-exceeds-rad', qualifiedValue: 'yes' },
+                { name: 'used-ventilator', element: 'q-used-ventilator', qualifiedValue: 'yes' },
+                { name: 'risks-exacerbation', element: 'q-risks-exacerbation', qualifiedValue: 'yes' },
+                { name: 'sleep-apnea', element: 'q-sleep-apnea', qualifiedValue: 'yes' },
+                { name: 'abg-awake-copd', element: 'q-abg-awake-copd', qualifiedValue: 'yes' },
+                { name: 'chart-12months', element: 'q-chart-12months', qualifiedValue: 'yes' },
+                { name: 'evaluated', element: 'q-evaluated', qualifiedValue: 'yes' },
+                { name: 'charting-support', element: 'q-charting-support', qualifiedValue: 'yes' },
+                { name: 'exceeds-bipap', element: 'q-exceeds-bipap', qualifiedValue: 'yes' },
+                { name: 'conflicting-docs', element: 'q-conflicting-docs', qualifiedValue: 'no' },
+                { name: 'interchangeable', element: 'q-interchangeable', qualifiedValue: 'no' },
+                { name: 'conflicting-terminology', element: 'q-conflicting-terminology', qualifiedValue: 'no' }
+            ];
+
+            // Add special handling for ETCO2 duration since it's nested
+            document.querySelectorAll('input[name="etco2-duration"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const element = document.getElementById('q-etco2-duration');
+                    const isQualified = this.value === 'yes';
+                    element.classList.remove('qualified', 'not-qualified');
+                    element.classList.add(isQualified ? 'qualified' : 'not-qualified');
+                });
+            });
+
+            // Add special handling for OHS radio
+            document.querySelectorAll('input[name="ohs"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const element = document.getElementById('q-ohs');
+                    // OHS itself doesn't have a qualified/not qualified state
+                    element.classList.remove('qualified', 'not-qualified');
+                });
+            });
+
+            // Add special handling for patient location radio (informational only)
+            document.querySelectorAll('input[name="patient-location"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const element = document.getElementById('q-patient-location');
+                    element.classList.remove('qualified', 'not-qualified');
+                });
+            });
+
+            // Add special handling for ETCO2 duration thoracic
+            document.querySelectorAll('input[name="etco2-duration-thoracic"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const element = document.getElementById('q-etco2-duration-thoracic');
+                    const isQualified = this.value === 'yes';
+                    element.classList.remove('qualified', 'not-qualified');
+                    element.classList.add(isQualified ? 'qualified' : 'not-qualified');
+                });
+            });
+
+            radioQuestions.forEach(q => {
+                document.querySelectorAll(`input[name="${q.name}"]`).forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const element = document.getElementById(q.element);
+                        if (!element) return;
+                        
+                        const isQualified = Array.isArray(q.qualifiedValue) 
+                            ? q.qualifiedValue.includes(this.value)
+                            : this.value === q.qualifiedValue;
+                            
+                        element.classList.remove('qualified', 'not-qualified');
+                        element.classList.add(isQualified ? 'qualified' : 'not-qualified');
+                    });
+                });
+            });
+
+            // Lab value inputs
+            const labInputs = [
+                { id: 'abg-value', statusId: 'abg-status', check: (val) => val > 45, label: val => val > 45 ? 'Qualified (>45)' : 'Not Qualified (≤45)' },
+                { id: 'pft-value', statusId: 'pft-status', check: (val) => val <= 50, label: val => val <= 50 ? 'Qualified (≤50%)' : 'Not Qualified (>50%)' },
+                { id: 'mip-value', statusId: 'mip-status', check: (val) => val > -60, label: val => val > -60 ? 'Qualified (less negative than -60)' : 'Not Qualified (more negative than -60)' },
+                { id: 'etco2-value', statusId: 'etco2-status', check: (val) => val > 43, label: val => val > 43 ? 'Value Qualified (>43)' : 'Value Not Qualified (≤43)' },
+                { id: 'tcco2-value', statusId: 'tcco2-status', check: (val) => val > 50, label: val => val > 50 ? 'Qualified (>50)' : 'Not Qualified (≤50)' },
+                { id: 'vbg-value', statusId: 'vbg-status', check: (val) => val > 51, label: val => val > 51 ? 'Qualified (>51)' : 'Not Qualified (≤51)' },
+                // Thoracic lab inputs
+                { id: 'abg-value-thoracic', statusId: 'abg-status-thoracic', check: (val) => val > 45, label: val => val > 45 ? 'Qualified (>45)' : 'Not Qualified (≤45)' },
+                { id: 'pft-value-thoracic', statusId: 'pft-status-thoracic', check: (val) => val <= 50, label: val => val <= 50 ? 'Qualified (≤50%)' : 'Not Qualified (>50%)' },
+                { id: 'etco2-value-thoracic', statusId: 'etco2-status-thoracic', check: (val) => val > 43, label: val => val > 43 ? 'Value Qualified (>43)' : 'Value Not Qualified (≤43)' },
+                { id: 'tcco2-value-thoracic', statusId: 'tcco2-status-thoracic', check: (val) => val > 50, label: val => val > 50 ? 'Qualified (>50)' : 'Not Qualified (≤50)' },
+                { id: 'vbg-value-thoracic', statusId: 'vbg-status-thoracic', check: (val) => val > 51, label: val => val > 51 ? 'Qualified (>51)' : 'Not Qualified (≤51)' },
+                // BMI input
+                { id: 'bmi-value', statusId: 'bmi-status', check: (val) => val > 40, label: val => val > 40 ? 'Qualified (>40)' : 'Not Qualified (≤40)' },
+                // COPD ABG input
+                { id: 'abg-value-copd', statusId: 'abg-status-copd', check: (val) => val >= 52, label: val => val >= 52 ? 'Qualified (≥52)' : 'Not Qualified (<52)' }
+            ];
+
+            labInputs.forEach(input => {
+                const element = document.getElementById(input.id);
+                const status = document.getElementById(input.statusId);
+                
+                element.addEventListener('input', function() {
+                    const value = parseFloat(this.value);
+                    const container = this.closest('.nested-question');
+                    
+                    if (!isNaN(value)) {
+                        const isQualified = input.check(value);
+                        status.textContent = input.label(value);
+                        status.classList.remove('hidden', 'value-qualified', 'value-not-qualified');
+                        status.classList.add(isQualified ? 'value-qualified' : 'value-not-qualified');
+                        
+                        container.classList.remove('qualified', 'not-qualified');
+                        container.classList.add(isQualified ? 'qualified' : 'not-qualified');
+                    } else {
+                        status.classList.add('hidden');
+                        container.classList.remove('qualified', 'not-qualified');
+                    }
+                });
+            });
+        }
+
+        function handleSWOChange(e) {
+            const detailQuestion = document.getElementById('q-swo-detail');
+            if (e.target.value === 'yes') {
+                detailQuestion.classList.remove('hidden');
+            } else {
+                detailQuestion.classList.add('hidden');
+                document.querySelectorAll('input[name="swo-detail"]').forEach(radio => radio.checked = false);
+                detailQuestion.classList.remove('qualified', 'not-qualified');
+            }
+        }
+
+        function handleDiagnosisChange(e) {
+            const labSection = document.getElementById('lab-section');
+            const labSectionThoracic = document.getElementById('lab-section-thoracic');
+            const ohsSection = document.getElementById('ohs-section');
+            
+            // Hide all sections first
+            labSection.classList.add('hidden');
+            labSectionThoracic.classList.add('hidden');
+            ohsSection.classList.add('hidden');
+            
+            // Reset all selections
+            document.querySelectorAll('input[name="labs"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('input[name="labs-thoracic"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('input[name="ohs"]').forEach(radio => radio.checked = false);
+            document.querySelectorAll('input[name="bmi-charted"]').forEach(radio => radio.checked = false);
+            document.getElementById('bmi-value').value = '';
+            document.getElementById('bmi-status').classList.add('hidden');
+            document.getElementById('q-ohs').classList.remove('qualified', 'not-qualified');
+            document.getElementById('q-bmi-value').classList.remove('qualified', 'not-qualified');
+            document.getElementById('q-bmi-charted').classList.add('hidden').classList.remove('qualified', 'not-qualified');
+            hideAllLabQuestions();
+            hideAllLabQuestionsThoracic();
+            
+            if (e.target.value === 'neuromuscular') {
+                labSection.classList.remove('hidden');
+            } else if (e.target.value === 'thoracic') {
+                ohsSection.classList.remove('hidden');
+                labSectionThoracic.classList.remove('hidden');
+            }
+        }
+
+        function handleOHSChange(e) {
+            const bmiValueQuestion = document.getElementById('q-bmi-value');
+            const bmiChartedQuestion = document.getElementById('q-bmi-charted');
+            
+            if (e.target.value === 'yes') {
+                bmiValueQuestion.classList.remove('hidden');
+                bmiChartedQuestion.classList.remove('hidden');
+            } else {
+                bmiValueQuestion.classList.add('hidden');
+                bmiChartedQuestion.classList.add('hidden');
+                document.getElementById('bmi-value').value = '';
+                document.getElementById('bmi-status').classList.add('hidden');
+                document.querySelectorAll('input[name="bmi-charted"]').forEach(radio => radio.checked = false);
+                bmiValueQuestion.classList.remove('qualified', 'not-qualified');
+                bmiChartedQuestion.classList.remove('qualified', 'not-qualified');
+            }
+        }
+
+        function handleLabChange(e) {
+            const labType = e.target.value;
+            const isChecked = e.target.checked;
+
+            switch(labType) {
+                case 'abg':
+                    document.getElementById('q-abg-value').classList.toggle('hidden', !isChecked);
+                    if (!isChecked) {
+                        document.getElementById('abg-value').value = '';
+                        document.getElementById('abg-status').classList.add('hidden');
+                        document.getElementById('q-abg-value').classList.remove('qualified', 'not-qualified');
+                    }
+                    break;
+                case 'pft':
+                    document.getElementById('q-pft-value').classList.toggle('hidden', !isChecked);
+                    if (!isChecked) {
+                        document.getElementById('pft-value').value = '';
+                        document.getElementById('pft-status').classList.add('hidden');
+                        document.getElementById('q-pft-value').classList.remove('qualified', 'not-qualified');
+                    }
+                    break;
+                case 'mip':
+                    document.getElementById('q-mip-value').classList.toggle('hidden', !isChecked);
+                    if (!isChecked) {
+                        document.getElementById('mip-value').value = '';
+                        document.getElementById('mip-status').classList.add('hidden');
+                        document.getElementById('q-mip-value').classList.remove('qualified', 'not-qualified');
+                    }
+                    break;
+                case 'etco2':
+                    document.getElementById('q-etco2-value').classList.toggle('hidden', !isChecked);
+                    document.getElementById('q-etco2-duration').classList.toggle('hidden', !isChecked);
+                    if (!isChecked) {
+                        document.getElementById('etco2-value').value = '';
+                        document.getElementById('etco2-status').classList.add('hidden');
+                        document.getElementById('q-etco2-value').classList.remove('qualified', 'not-qualified');
+                        document.querySelectorAll('input[name="etco2-duration"]').forEach(radio => radio.checked = false);
+                        document.getElementById('q-etco2-duration').classList.remove('qualified', 'not-qualified');
+                    }
+                    break;
+                case 'tcco2':
+                    document.getElementById('q-tcco2-value').classList.toggle('hidden', !isChecked);
+                    if (!isChecked) {
+                        document.getElementById('tcco2-value').value = '';
+                        document.getElementById('tcco2-status').classList.add('hidden');
+                        document.getElementById('q-tcco2-value').classList.remove('qualified', 'not-qualified');
+                    }
+                    break;
+                case 'vbg':
+                    document.getElementById('q-vbg-value').classList.toggle('hidden', !isChecked);
+                    if (!isChecked) {
+                        document.getElementById('vbg-value').value = '';
+                        document.getElementById('vbg-status').classList.add('hidden');
+                        document.getElementById('q-vbg-value').classList.remove('qualified', 'not-qualified');
+                    }
+                    break;
+            }
+        }
+
+        }
+
+        function handleChronicRespFailureChange(e) {
+            const patientLocationQuestion = document.getElementById('q-patient-location');
+            const labSectionCOPD = document.getElementById('lab-section-copd');
+            
+            if (e.target.value === 'yes') {
+                patientLocationQuestion.classList.remove('hidden');
+            } else {
+                patientLocationQuestion.classList.add('hidden');
+                labSectionCOPD.classList.add('hidden');
+                document.getElementById('inpatient-questions').classList.add('hidden');
+                document.getElementById('outpatient-questions').classList.add('hidden');
+                document.querySelectorAll('input[name="patient-location"]').forEach(radio => radio.checked = false);
+                resetCOPDSelections();
+            }
+        }
+
+        function handlePatientLocationChange(e) {
+            const inpatientQuestions = document.getElementById('inpatient-questions');
+            const outpatientQuestions = document.getElementById('outpatient-questions');
+            const labSectionCOPD = document.getElementById('lab-section-copd');
+            
+            if (e.target.value === 'inpatient') {
+                inpatientQuestions.classList.remove('hidden');
+                outpatientQuestions.classList.add('hidden');
+                labSectionCOPD.classList.remove('hidden');
+                // Reset outpatient selections
+                document.querySelectorAll('input[name="sleep-apnea"]').forEach(radio => radio.checked = false);
+                document.querySelectorAll('input[name="qualifying-conditions"]').forEach(cb => cb.checked = false);
+            } else if (e.target.value === 'outpatient') {
+                inpatientQuestions.classList.add('hidden');
+                outpatientQuestions.classList.remove('hidden');
+                labSectionCOPD.classList.remove('hidden');
+                // Reset inpatient selections
+                document.querySelectorAll('input[name="exceeds-rad"]').forEach(radio => radio.checked = false);
+                document.querySelectorAll('input[name="used-ventilator"]').forEach(radio => radio.checked = false);
+                document.querySelectorAll('input[name="risks-exacerbation"]').forEach(radio => radio.checked = false);
+            }
+        }
+
+        function handleLabChangeCOPD(e) {
+            const isChecked = e.target.checked;
+            
+            if (e.target.value === 'abg') {
+                document.getElementById('q-abg-value-copd').classList.toggle('hidden', !isChecked);
+                document.getElementById('q-abg-awake-copd').classList.toggle('hidden', !isChecked);
+                if (!isChecked) {
+                    document.getElementById('abg-value-copd').value = '';
+                    document.getElementById('abg-status-copd').classList.add('hidden');
+                    document.getElementById('q-abg-value-copd').classList.remove('qualified', 'not-qualified');
+                    document.querySelectorAll('input[name="abg-awake-copd"]').forEach(radio => radio.checked = false);
+                    document.getElementById('q-abg-awake-copd').classList.remove('qualified', 'not-qualified');
+                }
+            }
+        }
+
+        function resetCOPDSelections() {
+            // Reset all COPD-specific selections
+            document.querySelectorAll('input[name="exceeds-rad"]').forEach(radio => radio.checked = false);
+            document.querySelectorAll('input[name="used-ventilator"]').forEach(radio => radio.checked = false);
+            document.querySelectorAll('input[name="risks-exacerbation"]').forEach(radio => radio.checked = false);
+            document.querySelectorAll('input[name="sleep-apnea"]').forEach(radio => radio.checked = false);
+            document.querySelectorAll('input[name="qualifying-conditions"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('input[name="labs-copd"]').forEach(cb => cb.checked = false);
+            document.querySelectorAll('input[name="abg-awake-copd"]').forEach(radio => radio.checked = false);
+            document.getElementById('abg-value-copd').value = '';
+            document.getElementById('abg-status-copd').classList.add('hidden');
+            
+            // Remove qualification classes
+            document.getElementById('q-chronic-resp-failure').classList.remove('qualified', 'not-qualified');
+            document.getElementById('q-patient-location').classList.remove('qualified', 'not-qualified');
+            document.getElementById('q-exceeds-rad').classList.remove('qualified', 'not-qualified');
+            document.getElementById('q-used-ventilator').classList.remove('qualified', 'not-qualified');
+            document.getElementById('q-risks-exacerbation').classList.remove('qualified', 'not-qualified');
+            document.getElementById('q-sleep-apnea').classList.remove('qualified', 'not-qualified');
+            document.getElementById('q-abg-value-copd').classList.remove('qualified', 'not-qualified');
+            document.getElementById('q-abg-awake-copd').classList.remove('qualified', 'not-qualified');
+        }
+
+        function hideAllLabQuestionsCOPD() {
+            document.getElementById('q-abg-value-copd').classList.add('hidden');
+            document.getElementById('q-abg-awake-copd').classList.add('hidden');
+            document.getElementById('q-abg-value-copd').classList.remove('qualified', 'not-qualified');
+            document.getElementById('q-abg-awake-copd').classList.remove('qualified', 'not-qualified');
+            document.getElementById('abg-status-copd').classList.add('hidden');
+            document.getElementById('abg-value-copd').value = '';
+            document.querySelectorAll('input[name="abg-awake-copd"]').forEach(radio => radio.checked = false);
+        }
+
+        function handleLabChangeThoracic(e) {
+            const labType = e.target.value;
+            const isChecked = e.target.checked;
+
+            switch(labType) {
+                case 'abg':
+                    document.getElementById('q-abg-value-thoracic').classList.toggle('hidden', !isChecked);
+                    if (!isChecked) {
+                        document.getElementById('abg-value-thoracic').value = '';
+                        document.getElementById('abg-status-thoracic').classList.add('hidden');
+                        document.getElementById('q-abg-value-thoracic').classList.remove('qualified', 'not-qualified');
+                    }
+                    break;
+                case 'pft':
+                    document.getElementById('q-pft-value-thoracic').classList.toggle('hidden', !isChecked);
+                    if (!isChecked) {
+                        document.getElementById('pft-value-thoracic').value = '';
+                        document.getElementById('pft-status-thoracic').classList.add('hidden');
+                        document.getElementById('q-pft-value-thoracic').classList.remove('qualified', 'not-qualified');
+                    }
+                    break;
+                case 'etco2':
+                    document.getElementById('q-etco2-value-thoracic').classList.toggle('hidden', !isChecked);
+                    document.getElementById('q-etco2-duration-thoracic').classList.toggle('hidden', !isChecked);
+                    if (!isChecked) {
+                        document.getElementById('etco2-value-thoracic').value = '';
+                        document.getElementById('etco2-status-thoracic').classList.add('hidden');
+                        document.getElementById('q-etco2-value-thoracic').classList.remove('qualified', 'not-qualified');
+                        document.querySelectorAll('input[name="etco2-duration-thoracic"]').forEach(radio => radio.checked = false);
+                        document.getElementById('q-etco2-duration-thoracic').classList.remove('qualified', 'not-qualified');
+                    }
+                    break;
+                case 'tcco2':
+                    document.getElementById('q-tcco2-value-thoracic').classList.toggle('hidden', !isChecked);
+                    if (!isChecked) {
+                        document.getElementById('tcco2-value-thoracic').value = '';
+                        document.getElementById('tcco2-status-thoracic').classList.add('hidden');
+                        document.getElementById('q-tcco2-value-thoracic').classList.remove('qualified', 'not-qualified');
+                    }
+                    break;
+                case 'vbg':
+                    document.getElementById('q-vbg-value-thoracic').classList.toggle('hidden', !isChecked);
+                    if (!isChecked) {
+                        document.getElementById('vbg-value-thoracic').value = '';
+                        document.getElementById('vbg-status-thoracic').classList.add('hidden');
+                        document.getElementById('q-vbg-value-thoracic').classList.remove('qualified', 'not-qualified');
+                    }
+                    break;
+            }
+        }
+
+        function hideAllLabQuestions() {
+            const labQuestions = ['q-abg-value', 'q-pft-value', 'q-mip-value', 'q-etco2-value', 'q-etco2-duration', 'q-tcco2-value', 'q-vbg-value'];
+            labQuestions.forEach(id => {
+                const element = document.getElementById(id);
+                element.classList.add('hidden');
+                element.classList.remove('qualified', 'not-qualified');
+            });
+            
+            // Clear all status indicators
+            ['abg-status', 'pft-status', 'mip-status', 'etco2-status', 'tcco2-status', 'vbg-status'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            
+            // Clear all input values
+            ['abg-value', 'pft-value', 'mip-value', 'etco2-value', 'tcco2-value', 'vbg-value'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            
+            // Clear radio selections
+            document.querySelectorAll('input[name="etco2-duration"]').forEach(radio => radio.checked = false);
+        }
+
+        function hideAllLabQuestionsThoracic() {
+            const labQuestions = ['q-abg-value-thoracic', 'q-pft-value-thoracic', 'q-etco2-value-thoracic', 'q-etco2-duration-thoracic', 'q-tcco2-value-thoracic', 'q-vbg-value-thoracic'];
+            labQuestions.forEach(id => {
+                const element = document.getElementById(id);
+                element.classList.add('hidden');
+                element.classList.remove('qualified', 'not-qualified');
+            });
+            
+            // Clear all status indicators
+            ['abg-status-thoracic', 'pft-status-thoracic', 'etco2-status-thoracic', 'tcco2-status-thoracic', 'vbg-status-thoracic'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            
+            // Clear all input values
+            ['abg-value-thoracic', 'pft-value-thoracic', 'etco2-value-thoracic', 'tcco2-value-thoracic', 'vbg-value-thoracic'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            
+            // Clear radio selections
+            document.querySelectorAll('input[name="etco2-duration-thoracic"]').forEach(radio => radio.checked = false);
+        }
+
+        function evaluateSWOSection() {
+            const swo = document.querySelector('input[name="swo"]:checked');
+            const swoDetail = document.querySelector('input[name="swo-detail"]:checked');
+
+            if (!swo) return { status: 'incomplete', details: [] };
+
+            if (swo.value === 'no') {
+                return { 
+                    status: 'not-approved', 
+                    details: [{ question: 'SWO Available', answer: 'No', approved: false }]
+                };
+            }
+
+            if (swo.value === 'yes') {
+                if (!swoDetail) {
+                    return { 
+                        status: 'incomplete', 
+                        details: [{ question: 'SWO Available', answer: 'Yes', approved: true }]
+                    };
+                }
+                
+                return {
+                    status: swoDetail.value === 'yes' ? 'approved' : 'not-approved',
+                    details: [
+                        { question: 'SWO Available', answer: 'Yes', approved: true },
+                        { question: 'Detailed Item Description', answer: swoDetail.value === 'yes' ? 'Yes' : 'No', approved: swoDetail.value === 'yes' }
+                    ]
+                };
+            }
+        }
+
+        function evaluatePRNSection() {
+            const prn = document.querySelector('input[name="prn"]:checked');
+            if (!prn) return { status: 'incomplete', details: [] };
+
+            return {
+                status: prn.value === 'no' ? 'approved' : 'not-approved',
+                details: [{ 
+                    question: 'Orders state only PRN/as needed', 
+                    answer: prn.value === 'yes' ? 'Yes' : 'No', 
+                    approved: prn.value === 'no' 
+                }]
+            };
+        }
+
+        function evaluateDiagnosisSection() {
+            const diagnosis = document.querySelector('input[name="diagnosis"]:checked');
+            if (!diagnosis) return { status: 'incomplete', details: [] };
+
+            const approved = diagnosis.value !== 'none';
+            return {
+                status: approved ? 'approved' : 'not-approved',
+                details: [{ 
+                    question: 'Qualifying Diagnosis', 
+                    answer: diagnosis.value === 'neuromuscular' ? 'Neuromuscular Disease' :
+                           diagnosis.value === 'thoracic' ? 'Thoracic Restrictive Disease' :
+                           diagnosis.value === 'copd' ? 'COPD' : 'None',
+                    approved: approved 
+                }]
+            };
+        }
+
+        function evaluateLabSection() {
+            const diagnosis = document.querySelector('input[name="diagnosis"]:checked');
+            if (!diagnosis || diagnosis.value !== 'neuromuscular') {
+                return { status: 'not-applicable', details: [] };
+            }
+
+            const checkedLabs = Array.from(document.querySelectorAll('input[name="labs"]:checked'));
+            if (checkedLabs.length === 0) return { status: 'incomplete', details: [] };
+
+            if (checkedLabs.some(cb => cb.value === 'none')) {
+                return {
+                    status: 'not-approved',
+                    details: [{ question: 'Lab Results', answer: 'None available', approved: false }]
+                };
+            }
+
+            let details = [];
+            let hasApprovedLab = false;
+
+            // ABG
+            if (document.getElementById('lab-abg').checked) {
+                const value = parseFloat(document.getElementById('abg-value').value);
+                const approved = value > 45;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'ABG pCO2',
+                    answer: value ? `${value} mmHg` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // PFT
+            if (document.getElementById('lab-pft').checked) {
+                const value = parseFloat(document.getElementById('pft-value').value);
+                const approved = value <= 50;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'PFT/Spirometry FVC',
+                    answer: value ? `${value}%` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // PFT with interpretation
+            if (document.getElementById('lab-pft-interp').checked) {
+                hasApprovedLab = true;
+                details.push({
+                    question: 'PFT with MD interpretation',
+                    answer: 'Yes',
+                    approved: true
+                });
+            }
+
+            // MIP - Fixed logic: less negative than -60 is approved
+            if (document.getElementById('lab-mip').checked) {
+                const value = parseFloat(document.getElementById('mip-value').value);
+                const approved = value > -60;  // e.g., -50 is greater than -60, so it's approved
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'MIP',
+                    answer: value ? `${value} cmH2O` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // ETCO2
+            if (document.getElementById('lab-etco2').checked) {
+                const value = parseFloat(document.getElementById('etco2-value').value);
+                const duration = document.querySelector('input[name="etco2-duration"]:checked');
+                const valueApproved = value > 43;
+                const durationApproved = duration && duration.value === 'yes';
+                const approved = valueApproved && durationApproved;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'ETCO2',
+                    answer: value ? `${value} mmHg` + (duration ? `, ${duration.value === 'yes' ? '≥5 min' : '<5 min'}` : '') : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // TcCO2
+            if (document.getElementById('lab-tcco2').checked) {
+                const value = parseFloat(document.getElementById('tcco2-value').value);
+                const approved = value > 50;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'Transcutaneous CO2',
+                    answer: value ? `${value} mmHg` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // VBG
+            if (document.getElementById('lab-vbg').checked) {
+                const value = parseFloat(document.getElementById('vbg-value').value);
+                const approved = value > 51;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'VBG pCO2',
+                    answer: value ? `${value} mmHg` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            return {
+                status: hasApprovedLab ? 'approved' : 'not-approved',
+                details: details
+            };
+        }
+
+        function evaluateChartNotesSection() {
+            const questions = [
+                { name: 'chart-12months', question: 'Chart notes within 12 months', approvedValue: 'yes' },
+                { name: 'evaluated', question: 'Patient evaluated for approved disease', approvedValue: 'yes' },
+                { name: 'charting-support', question: 'Charting supports vent therapy need', approvedValue: 'yes' },
+                { name: 'exceeds-bipap', question: 'Needs exceed BiPAP capabilities', approvedValue: 'yes' },
+                { name: 'conflicting-docs', question: 'Conflicting documentation', approvedValue: 'no' },
+                { name: 'interchangeable', question: 'BiPAP/ventilator used interchangeably', approvedValue: 'no' },
+                { name: 'conflicting-terminology', question: 'Conflicting terminology', approvedValue: 'no' }
+            ];
+
+            let details = [];
+            let allApproved = true;
+            let hasIncomplete = false;
+
+            questions.forEach(q => {
+                const answer = document.querySelector(`input[name="${q.name}"]:checked`);
+                if (!answer) {
+                    hasIncomplete = true;
+                    return;
+                }
+
+                const approved = answer.value === q.approvedValue;
+                if (!approved) allApproved = false;
+                
+                details.push({
+                    question: q.question,
+                    answer: answer.value === 'yes' ? 'Yes' : 'No',
+                    approved: approved
+                });
+            });
+
+            if (hasIncomplete) return { status: 'incomplete', details: details };
+            return { status: allApproved ? 'approved' : 'not-approved', details: details };
+        }
+
+        function evaluateOHSSection() {
+            const diagnosis = document.querySelector('input[name="diagnosis"]:checked');
+            if (!diagnosis || diagnosis.value !== 'thoracic') {
+                return { status: 'not-applicable', details: [] };
+            }
+
+            const ohs = document.querySelector('input[name="ohs"]:checked');
+            if (!ohs) return { status: 'incomplete', details: [] };
+
+            let details = [];
+            let sectionApproved = true;
+
+            details.push({
+                question: 'OHS is root cause',
+                answer: ohs.value === 'yes' ? 'Yes' : 'No',
+                approved: true // This is informational
+            });
+
+            if (ohs.value === 'yes') {
+                const bmiValue = parseFloat(document.getElementById('bmi-value').value);
+                const bmiCharted = document.querySelector('input[name="bmi-charted"]:checked');
+
+                if (isNaN(bmiValue) || !bmiCharted) {
+                    return { status: 'incomplete', details: details };
+                }
+
+                const bmiApproved = bmiValue > 40;
+                const chartedApproved = bmiCharted.value === 'yes';
+
+                details.push({
+                    question: 'BMI Value',
+                    answer: `${bmiValue}`,
+                    approved: bmiApproved
+                });
+
+                details.push({
+                    question: 'BMI charted in notes',
+                    answer: chartedApproved ? 'Yes' : 'No',
+                    approved: chartedApproved
+                });
+
+                sectionApproved = bmiApproved && chartedApproved;
+            } else {
+                // If OHS is not the root cause, this section doesn't apply but doesn't block approval
+                sectionApproved = true;
+            }
+
+            return { status: sectionApproved ? 'approved' : 'not-approved', details: details };
+        }
+
+        function evaluateLabSectionThoracic() {
+            const diagnosis = document.querySelector('input[name="diagnosis"]:checked');
+            if (!diagnosis || diagnosis.value !== 'thoracic') {
+                return { status: 'not-applicable', details: [] };
+            }
+
+            const checkedLabs = Array.from(document.querySelectorAll('input[name="labs-thoracic"]:checked'));
+            if (checkedLabs.length === 0) return { status: 'incomplete', details: [] };
+
+            if (checkedLabs.some(cb => cb.value === 'none')) {
+                return {
+                    status: 'not-approved',
+                    details: [{ question: 'Lab Results', answer: 'None available', approved: false }]
+                };
+            }
+
+            let details = [];
+            let hasApprovedLab = false;
+
+            // ABG
+            if (document.getElementById('lab-abg-thoracic').checked) {
+                const value = parseFloat(document.getElementById('abg-value-thoracic').value);
+                const approved = value > 45;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'ABG pCO2',
+                    answer: value ? `${value} mmHg` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // PFT
+            if (document.getElementById('lab-pft-thoracic').checked) {
+                const value = parseFloat(document.getElementById('pft-value-thoracic').value);
+                const approved = value <= 50;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'PFT/Spirometry FVC',
+                    answer: value ? `${value}%` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // PFT with interpretation
+            if (document.getElementById('lab-pft-interp-thoracic').checked) {
+                hasApprovedLab = true;
+                details.push({
+                    question: 'PFT with MD interpretation',
+                    answer: 'Yes',
+                    approved: true
+                });
+            }
+
+            // ETCO2
+            if (document.getElementById('lab-etco2-thoracic').checked) {
+                const value = parseFloat(document.getElementById('etco2-value-thoracic').value);
+                const duration = document.querySelector('input[name="etco2-duration-thoracic"]:checked');
+                const valueApproved = value > 43;
+                const durationApproved = duration && duration.value === 'yes';
+                const approved = valueApproved && durationApproved;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'ETCO2',
+                    answer: value ? `${value} mmHg` + (duration ? `, ${duration.value === 'yes' ? '≥5 min' : '<5 min'}` : '') : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // TcCO2
+            if (document.getElementById('lab-tcco2-thoracic').checked) {
+                const value = parseFloat(document.getElementById('tcco2-value-thoracic').value);
+                const approved = value > 50;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'Transcutaneous CO2',
+                    answer: value ? `${value} mmHg` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // VBG
+            if (document.getElementById('lab-vbg-thoracic').checked) {
+                const value = parseFloat(document.getElementById('vbg-value-thoracic').value);
+                const approved = value > 51;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'VBG pCO2',
+                    answer: value ? `${value} mmHg` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            return {
+                status: hasApprovedLab ? 'approved' : 'not-approved',
+                details: details
+            };
+        }
+            const swo = document.querySelector('input[name="swo"]:checked');
+            const swoDetail = document.querySelector('input[name="swo-detail"]:checked');
+
+            if (!swo) return { status: 'incomplete', details: [] };
+
+            if (swo.value === 'no') {
+                return { 
+                    status: 'not-approved', 
+                    details: [{ question: 'SWO Available', answer: 'No', approved: false }]
+                };
+            }
+
+            if (swo.value === 'yes') {
+                if (!swoDetail) {
+                    return { 
+                        status: 'incomplete', 
+                        details: [{ question: 'SWO Available', answer: 'Yes', approved: true }]
+                    };
+                }
+                
+                return {
+                    status: swoDetail.value === 'yes' ? 'approved' : 'not-approved',
+                    details: [
+                        { question: 'SWO Available', answer: 'Yes', approved: true },
+                        { question: 'Detailed Item Description', answer: swoDetail.value === 'yes' ? 'Yes' : 'No', approved: swoDetail.value === 'yes' }
+                    ]
+                };
+            }
+        }
+
+        function evaluatePRNSection() {
+            const prn = document.querySelector('input[name="prn"]:checked');
+            if (!prn) return { status: 'incomplete', details: [] };
+
+            return {
+                status: prn.value === 'no' ? 'approved' : 'not-approved',
+                details: [{ 
+                    question: 'Orders state only PRN/as needed', 
+                    answer: prn.value === 'yes' ? 'Yes' : 'No', 
+                    approved: prn.value === 'no' 
+                }]
+            };
+        }
+
+        function evaluateDiagnosisSection() {
+            const diagnosis = document.querySelector('input[name="diagnosis"]:checked');
+            if (!diagnosis) return { status: 'incomplete', details: [] };
+
+            const approved = diagnosis.value !== 'none';
+            return {
+                status: approved ? 'approved' : 'not-approved',
+                details: [{ 
+                    question: 'Qualifying Diagnosis', 
+                    answer: diagnosis.value === 'neuromuscular' ? 'Neuromuscular Disease' :
+                           diagnosis.value === 'thoracic' ? 'Thoracic Restrictive Disease' :
+                           diagnosis.value === 'copd' ? 'COPD' : 'None',
+                    approved: approved 
+                }]
+            };
+        }
+
+        function evaluateLabSection() {
+            const diagnosis = document.querySelector('input[name="diagnosis"]:checked');
+            if (!diagnosis || diagnosis.value !== 'neuromuscular') {
+                return { status: 'not-applicable', details: [] };
+            }
+
+            const checkedLabs = Array.from(document.querySelectorAll('input[name="labs"]:checked'));
+            if (checkedLabs.length === 0) return { status: 'incomplete', details: [] };
+
+            if (checkedLabs.some(cb => cb.value === 'none')) {
+                return {
+                    status: 'not-approved',
+                    details: [{ question: 'Lab Results', answer: 'None available', approved: false }]
+                };
+            }
+
+            let details = [];
+            let hasApprovedLab = false;
+
+            // ABG
+            if (document.getElementById('lab-abg').checked) {
+                const value = parseFloat(document.getElementById('abg-value').value);
+                const approved = value > 45;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'ABG pCO2',
+                    answer: value ? `${value} mmHg` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // PFT
+            if (document.getElementById('lab-pft').checked) {
+                const value = parseFloat(document.getElementById('pft-value').value);
+                const approved = value <= 50;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'PFT/Spirometry FVC',
+                    answer: value ? `${value}%` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // PFT with interpretation
+            if (document.getElementById('lab-pft-interp').checked) {
+                hasApprovedLab = true;
+                details.push({
+                    question: 'PFT with MD interpretation',
+                    answer: 'Yes',
+                    approved: true
+                });
+            }
+
+            // MIP - Fixed logic: less negative than -60 is approved
+            if (document.getElementById('lab-mip').checked) {
+                const value = parseFloat(document.getElementById('mip-value').value);
+                const approved = value > -60;  // e.g., -50 is greater than -60, so it's approved
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'MIP',
+                    answer: value ? `${value} cmH2O` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // ETCO2
+            if (document.getElementById('lab-etco2').checked) {
+                const value = parseFloat(document.getElementById('etco2-value').value);
+                const duration = document.querySelector('input[name="etco2-duration"]:checked');
+                const valueApproved = value > 43;
+                const durationApproved = duration && duration.value === 'yes';
+                const approved = valueApproved && durationApproved;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'ETCO2',
+                    answer: value ? `${value} mmHg` + (duration ? `, ${duration.value === 'yes' ? '≥5 min' : '<5 min'}` : '') : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // TcCO2
+            if (document.getElementById('lab-tcco2').checked) {
+                const value = parseFloat(document.getElementById('tcco2-value').value);
+                const approved = value > 50;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'Transcutaneous CO2',
+                    answer: value ? `${value} mmHg` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            // VBG
+            if (document.getElementById('lab-vbg').checked) {
+                const value = parseFloat(document.getElementById('vbg-value').value);
+                const approved = value > 51;
+                if (approved) hasApprovedLab = true;
+                details.push({
+                    question: 'VBG pCO2',
+                    answer: value ? `${value} mmHg` : 'Not entered',
+                    approved: approved
+                });
+            }
+
+            return {
+                status: hasApprovedLab ? 'approved' : 'not-approved',
+                details: details
+            };
+        }
+
+        function evaluateChartNotesSection() {
+            const questions = [
+                { name: 'chart-12months', question: 'Chart notes within 12 months', approvedValue: 'yes' },
+                { name: 'evaluated', question: 'Patient evaluated for approved disease', approvedValue: 'yes' },
+                { name: 'charting-support', question: 'Charting supports vent therapy need', approvedValue: 'yes' },
+                { name: 'exceeds-bipap', question: 'Needs exceed BiPAP capabilities', approvedValue: 'yes' },
+                { name: 'conflicting-docs', question: 'Conflicting documentation', approvedValue: 'no' },
+                { name: 'interchangeable', question: 'BiPAP/ventilator used interchangeably', approvedValue: 'no' },
+                { name: 'conflicting-terminology', question: 'Conflicting terminology', approvedValue: 'no' }
+            ];
+
+            let details = [];
+            let allApproved = true;
+            let hasIncomplete = false;
+
+            questions.forEach(q => {
+                const answer = document.querySelector(`input[name="${q.name}"]:checked`);
+                if (!answer) {
+                    hasIncomplete = true;
+                    return;
+                }
+
+                const approved = answer.value === q.approvedValue;
+                if (!approved) allApproved = false;
+                
+                details.push({
+                    question: q.question,
+                    answer: answer.value === 'yes' ? 'Yes' : 'No',
+                    approved: approved
+                });
+            });
+
+            if (hasIncomplete) return { status: 'incomplete', details: details };
+            return { status: allApproved ? 'approved' : 'not-approved', details: details };
+        }
+
+        }
+
+        function evaluateCOPDSection() {
+            const diagnosis = document.querySelector('input[name="diagnosis"]:checked');
+            if (!diagnosis || diagnosis.value !== 'copd') {
+                return { status: 'not-applicable', details: [] };
+            }
+
+            const chronicResp = document.querySelector('input[name="chronic-resp-failure"]:checked');
+            if (!chronicResp) return { status: 'incomplete', details: [] };
+
+            if (chronicResp.value === 'no') {
+                return {
+                    status: 'not-approved',
+                    details: [{ question: 'Chronic Respiratory Failure consequent to COPD', answer: 'No', approved: false }]
+                };
+            }
+
+            let details = [{
+                question: 'Chronic Respiratory Failure consequent to COPD',
+                answer: 'Yes',
+                approved: true
+            }];
+
+            const location = document.querySelector('input[name="patient-location"]:checked');
+            if (!location) return { status: 'incomplete', details: details };
+
+            details.push({
+                question: 'Patient Location',
+                answer: location.value === 'inpatient' ? 'Inpatient (hospital discharge)' : 'Outpatient (home)',
+                approved: true // This is informational
+            });
+
+            let sectionApproved = true;
+
+            if (location.value === 'inpatient') {
+                // Evaluate inpatient questions
+                const exceedsRAD = document.querySelector('input[name="exceeds-rad"]:checked');
+                const usedVentilator = document.querySelector('input[name="used-ventilator"]:checked');
+                const risksExacerbation = document.querySelector('input[name="risks-exacerbation"]:checked');
+
+                if (!exceedsRAD || !usedVentilator || !risksExacerbation) {
+                    return { status: 'incomplete', details: details };
+                }
+
+                const exceedsApproved = exceedsRAD.value === 'yes';
+                const ventilatorApproved = usedVentilator.value === 'yes';
+                const risksApproved = risksExacerbation.value === 'yes';
+
+                details.push({
+                    question: 'Patient needs exceed RAD during hospital stay',
+                    answer: exceedsRAD.value === 'yes' ? 'Yes' : 'No',
+                    approved: exceedsApproved
+                });
+
+                details.push({
+                    question: 'Used ventilator/RAD in 24 hours preceding discharge',
+                    answer: usedVentilator.value === 'yes' ? 'Yes' : 'No',
+                    approved: ventilatorApproved
+                });
+
+                details.push({
+                    question: 'Risks rapid symptom exacerbation or rise in PaCO2',
+                    answer: risksExacerbation.value === 'yes' ? 'Yes' : 'No',
+                    approved: risksApproved
+                });
+
+                sectionApproved = exceedsApproved && ventilatorApproved && risksApproved;
+            } else {
+                // Evaluate outpatient questions
+                const sleepApnea = document.querySelector('input[name="sleep-apnea"]:checked');
+                if (!sleepApnea) return { status: 'incomplete', details: details };
+
+                const sleepApneaApproved = sleepApnea.value === 'yes';
+                details.push({
+                    question: 'Sleep apnea NOT the primary cause',
+                    answer: sleepApnea.value === 'yes' ? 'Yes' : 'No',
+                    approved: sleepApneaApproved
+                });
+
+                const qualifyingConditions = Array.from(document.querySelectorAll('input[name="qualifying-conditions"]:checked'));
+                if (qualifyingConditions.length === 0) {
+                    details.push({
+                        question: 'Qualifying conditions',
+                        answer: 'None selected',
+                        approved: false
+                    });
+                    sectionApproved = false;
+                } else {
+                    const conditionsList = qualifyingConditions.map(cb => {
+                        switch(cb.value) {
+                            case 'oxygen': return 'Requires oxygen therapy at FiO2 ≥36% or ≥4L nasally';
+                            case '8hours': return 'Requires ventilatory support >8 hours per 24-hour period';
+                            case 'alarms': return 'Requires NIV alarms and internal battery';
+                            case 'rad-limitations': return 'RAD limitations per treating clinician';
+                            default: return cb.value;
+                        }
+                    }).join('; ');
+                    
+                    details.push({
+                        question: 'Qualifying conditions',
+                        answer: conditionsList,
+                        approved: true
+                    });
+
+                    sectionApproved = sleepApneaApproved && qualifyingConditions.length > 0;
+                }
+            }
+
+            return { status: sectionApproved ? 'approved' : 'not-approved', details: details };
+        }
+
+        function evaluateLabSectionCOPD() {
+            const diagnosis = document.querySelector('input[name="diagnosis"]:checked');
+            const chronicResp = document.querySelector('input[name="chronic-resp-failure"]:checked');
+            const location = document.querySelector('input[name="patient-location"]:checked');
+            
+            if (!diagnosis || diagnosis.value !== 'copd' || !chronicResp || chronicResp.value !== 'yes' || !location) {
+                return { status: 'not-applicable', details: [] };
+            }
+
+            const abgChecked = document.getElementById('lab-abg-copd').checked;
+            if (!abgChecked) return { status: 'incomplete', details: [] };
+
+            let details = [];
+            let sectionApproved = false;
+
+            const value = parseFloat(document.getElementById('abg-value-copd').value);
+            const awake = document.querySelector('input[name="abg-awake-copd"]:checked');
+
+            if (isNaN(value) || !awake) {
+                return { status: 'incomplete', details: [] };
+            }
+
+            const valueApproved = value >= 52;
+            const awakeApproved = awake.value === 'yes';
+            sectionApproved = valueApproved && awakeApproved;
+
+            details.push({
+                question: 'ABG pCO2',
+                answer: `${value} mmHg`,
+                approved: valueApproved
+            });
+
+            details.push({
+                question: 'ABG drawn during awake hours while breathing prescribed FiO2',
+                answer: awake.value === 'yes' ? 'Yes' : 'No',
+                approved: awakeApproved
+            });
+
+            return { status: sectionApproved ? 'approved' : 'not-approved', details: details };
+        }
+
+        function generateSummary() {
+            const swoSection = evaluateSWOSection();
+            const prnSection = evaluatePRNSection();
+            const diagnosisSection = evaluateDiagnosisSection();
+            const ohsSection = evaluateOHSSection();
+            const copdSection = evaluateCOPDSection();
+            const labSection = evaluateLabSection();
+            const labSectionThoracic = evaluateLabSectionThoracic();
+            const labSectionCOPD = evaluateLabSectionCOPD();
+            const chartSection = evaluateChartNotesSection();
+
+            const diagnosis = document.querySelector('input[name="diagnosis"]:checked');
+            const diagnosisType = diagnosis ? diagnosis.value : '';
+
+            let copyText = `NIV QUALIFICATION SUMMARY - ${diagnosisType === 'neuromuscular' ? 'NEUROMUSCULAR DISEASE' : 
+                            diagnosisType === 'thoracic' ? 'THORACIC RESTRICTIVE DISEASE' : 
+                            diagnosisType === 'copd' ? 'COPD' : 'GENERAL'}\n`;
+            copyText += '=' .repeat(50) + '\n\n';
+            
+            let overallApproved = true;
+            let sectionNumber = 1;
+
+            // SWO Section
+            copyText += `${sectionNumber}. STANDARD WRITTEN ORDER (SWO)\n`;
+            copyText += 'Status: ' + (swoSection.status === 'approved' ? 'APPROVED' : 
+                swoSection.status === 'incomplete' ? 'INCOMPLETE' : 'NOT APPROVED') + '\n';
+            swoSection.details.forEach(detail => {
+                copyText += `   • ${detail.question}: ${detail.answer} - ${detail.approved ? 'APPROVED' : 'NOT APPROVED'}\n`;
+            });
+            if (swoSection.status !== 'approved') overallApproved = false;
+            copyText += '\n';
+            sectionNumber++;
+
+            // PRN Section
+            copyText += `${sectionNumber}. ORDER TYPE\n`;
+            copyText += 'Status: ' + (prnSection.status === 'approved' ? 'APPROVED' : 
+                prnSection.status === 'incomplete' ? 'INCOMPLETE' : 'NOT APPROVED') + '\n';
+            prnSection.details.forEach(detail => {
+                copyText += `   • ${detail.question}: ${detail.answer} - ${detail.approved ? 'APPROVED' : 'NOT APPROVED'}\n`;
+            });
+            if (prnSection.status !== 'approved') overallApproved = false;
+            copyText += '\n';
+            sectionNumber++;
+
+            // Diagnosis Section
+            copyText += `${sectionNumber}. PATIENT DIAGNOSIS\n`;
+            copyText += 'Status: ' + (diagnosisSection.status === 'approved' ? 'APPROVED' : 
+                diagnosisSection.status === 'incomplete' ? 'INCOMPLETE' : 'NOT APPROVED') + '\n';
+            diagnosisSection.details.forEach(detail => {
+                copyText += `   • ${detail.question}: ${detail.answer} - ${detail.approved ? 'APPROVED' : 'NOT APPROVED'}\n`;
+            });
+            if (diagnosisSection.status !== 'approved') overallApproved = false;
+            copyText += '\n';
+            sectionNumber++;
+
+            // OHS Section (for thoracic)
+            if (ohsSection.status !== 'not-applicable') {
+                copyText += `${sectionNumber}. OBESITY HYPOVENTILATION SYNDROME (OHS)\n`;
+                copyText += 'Status: ' + (ohsSection.status === 'approved' ? 'APPROVED' : 
+                    ohsSection.status === 'incomplete' ? 'INCOMPLETE' : 'NOT APPROVED') + '\n';
+                ohsSection.details.forEach((detail, index) => {
+                    if (index === 0) {
+                        // OHS root cause is just informational
+                        copyText += `   • ${detail.question}: ${detail.answer}\n`;
+                    } else {
+                        copyText += `   • ${detail.question}: ${detail.answer} - ${detail.approved ? 'APPROVED' : 'NOT APPROVED'}\n`;
+                    }
+                });
+                if (ohsSection.status !== 'approved') overallApproved = false;
+                copyText += '\n';
+                sectionNumber++;
+            }
+
+            // COPD Specific Section
+            if (copdSection.status !== 'not-applicable') {
+                copyText += `${sectionNumber}. COPD SPECIFIC REQUIREMENTS\n`;
+                copyText += 'Status: ' + (copdSection.status === 'approved' ? 'APPROVED' : 
+                    copdSection.status === 'incomplete' ? 'INCOMPLETE' : 'NOT APPROVED') + '\n';
+                copdSection.details.forEach((detail, index) => {
+                    if (detail.question === 'Patient Location') {
+                        // Location is informational
+                        copyText += `   • ${detail.question}: ${detail.answer}\n`;
+                    } else {
+                        copyText += `   • ${detail.question}: ${detail.answer} - ${detail.approved ? 'APPROVED' : 'NOT APPROVED'}\n`;
+                    }
+                });
+                if (copdSection.status !== 'approved') overallApproved = false;
+                copyText += '\n';
+                sectionNumber++;
+            }
+
+            // Lab Section (neuromuscular, thoracic, or COPD)
+            const activeLabSection = diagnosisType === 'neuromuscular' ? labSection : 
+                                   diagnosisType === 'thoracic' ? labSectionThoracic : 
+                                   diagnosisType === 'copd' ? labSectionCOPD :
+                                   { status: 'not-applicable', details: [] };
+            
+            if (activeLabSection.status !== 'not-applicable') {
+                copyText += `${sectionNumber}. LAB RESULTS\n`;
+                copyText += 'Status: ' + (activeLabSection.status === 'approved' ? 
+                    (diagnosisType === 'copd' ? 'APPROVED' : 'APPROVED (At least one qualifying lab)') : 
+                    activeLabSection.status === 'incomplete' ? 'INCOMPLETE' : 'NOT APPROVED') + '\n';
+                activeLabSection.details.forEach(detail => {
+                    copyText += `   • ${detail.question}: ${detail.answer} - ${detail.approved ? 'APPROVED' : 'NOT APPROVED'}\n`;
+                });
+                if (activeLabSection.status !== 'approved') overallApproved = false;
+                copyText += '\n';
+                sectionNumber++;
+            }
+
+            // Chart Notes Section
+            copyText += `${sectionNumber}. CHART NOTES AND DOCUMENTATION\n`;
+            copyText += 'Status: ' + (chartSection.status === 'approved' ? 'APPROVED' : 
+                chartSection.status === 'incomplete' ? 'INCOMPLETE' : 'NOT APPROVED') + '\n';
+            chartSection.details.forEach(detail => {
+                copyText += `   • ${detail.question}: ${detail.answer} - ${detail.approved ? 'APPROVED' : 'NOT APPROVED'}\n`;
+            });
+            if (chartSection.status !== 'approved') overallApproved = false;
+            copyText += '\n';
+
+            // Overall Status
+            copyText += '=' .repeat(50) + '\n';
+            copyText += 'OVERALL QUALIFICATION STATUS: ' + (overallApproved ? 'APPROVED' : 'NOT APPROVED') + '\n';
+            copyText += '=' .repeat(50) + '\n';
+
+            document.getElementById('copy-content').textContent = copyText;
+            document.getElementById('questionnaire').classList.add('hidden');
+            document.getElementById('summary').classList.remove('hidden');
+        }
+
+        function copyToClipboard() {
+            const copyText = document.getElementById('copy-content').textContent;
+            navigator.clipboard.writeText(copyText).then(function() {
+                const notification = document.getElementById('copyNotification');
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                alert('Failed to copy to clipboard. Please select and copy manually.');
+            });
+        function backToQuestions() {
+            document.getElementById('questionnaire').classList.remove('hidden');
+            document.getElementById('summary').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
