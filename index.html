@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIV Qualification Tool</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NIV Qualification Tool</h1>
+        
+        <div id="questionnaire">
+            <h2>1. Standard Written Order (SWO)</h2>
+            <div class="question">
+                <div class="question-text">Do we have a SWO?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="swo-yes" name="swo" value="yes">
+                        <label for="swo-yes">Yes</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="swo-no" name="swo" value="no">
+                        <label for="swo-no">No</label>
+                    </div>
+                </div>
+            </div>
+
+            <h2>2. Patient Diagnosis</h2>
+            <div class="question">
+                <div class="question-text">What is the patient's diagnosis?</div>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="diagnosis-neuro" name="diagnosis" value="neuromuscular">
+                        <label for="diagnosis-neuro">Neuromuscular Disease</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="diagnosis-thoracic" name="diagnosis" value="thoracic">
+                        <label for="diagnosis-thoracic">Thoracic Restrictive Disease</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="diagnosis-copd" name="diagnosis" value="copd">
+                        <label for="diagnosis-copd">COPD</label>
+                    </div>
+                </div>
+            </div>
+
+            <h2>3. Lab Results</h2>
+            <div class="question">
+                <div class="question-text">What are the lab results?</div>
+                <div class="checkbox-group">
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="lab-abg" name="lab" value="abg">
+                        <label for="lab-abg">ABG with pCO2</label>
+                    </div>
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="lab-pft" name="lab" value="pft">
+                        <label for="lab-pft">PFT/Spirometry FVC</label>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="generateSummary()">Generate Summary</button>
+        </div>
+
+        <div id="summary" class="hidden">
+            <h3>Qualification Summary</h3>
+            <div id="summary-content"></div>
+            <button onclick="copyToClipboard()">Copy to Clipboard</button>
+            <button onclick="backToQuestions()">Back to Questions</button>
+        </div>
+    </div>
+
+    <script>
+        function generateSummary() {
+            const swo = document.querySelector('input[name="swo"]:checked');
+            const diagnosis = document.querySelector('input[name="diagnosis"]:checked');
+            const labs = Array.from(document.querySelectorAll('input[name="lab"]:checked'));
+
+            let summaryContent = '';
+            summaryContent += `SWO: ${swo ? swo.value : 'Not answered'}\n`;
+            summaryContent += `Diagnosis: ${diagnosis ? diagnosis.value : 'Not answered'}\n`;
+            summaryContent += `Lab Results: ${labs.map(lab => lab.value).join(', ') || 'Not answered'}`;
+
+            document.getElementById('summary-content').textContent = summaryContent;
+            document.getElementById('questionnaire').classList.add('hidden');
+            document.getElementById('summary').classList.remove('hidden');
+        }
+
+        function copyToClipboard() {
+            const summaryContent = document.getElementById('summary-content').textContent;
+            navigator.clipboard.writeText(summaryContent).then(function() {
+                alert('Summary copied to clipboard!');
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                alert('Failed to copy to clipboard. Please select and copy manually.');
+            });
+        }
+
+        function backToQuestions() {
+            document.getElementById('questionnaire').classList.remove('hidden');
+            document.getElementById('summary').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
