@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIV Clinical Approval Calculator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: #f4f7f9;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        #calculator-container {
+            width: 100%;
+            max-width: 800px;
+            background: #ffffff;
+            padding: 2em;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        header {
+            text-align: center;
+            margin-bottom: 2em;
+            border-bottom: 2px solid #eef;
+            padding-bottom: 1em;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 0.2em;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 1.5em;
+            padding-bottom: 0.3em;
+            border-bottom: 1px solid #eee;
+        }
+        .question-group {
+            margin-bottom: 1.5em;
+            padding: 1em;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+        }
+        .question-group p {
+            font-weight: bold;
+            margin-top: 0;
+        }
+        label {
+            display: block;
+            margin: 0.5em 0;
+            cursor: pointer;
+        }
+        input[type="radio"], input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+        #result {
+            margin-top: 2em;
+            padding: 1.5em;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+        }
+        .approved {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+        .rejected {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+        .not-approved {
+            background-color: #fff3e0;
+            color: #ef6c00;
+            border: 1px solid #ffcc80;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #fff;
+            background-color: #3498db;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1em;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #start-over {
+            background-color: #95a5a6;
+        }
+        #start-over:hover {
+            background-color: #7f8c8d;
+        }
+        .sub-group {
+            margin-left: 20px;
+            padding-left: 20px;
+            border-left: 2px solid #ecf0f1;
+        }
+    </style>
+</head>
+<body>
+
+<div id="calculator-container">
+    <header>
+        <h1>NIV Clinical Approval Calculator</h1>
+        <p>Follow the prompts to determine qualification status.</p>
+    </header>
+
+    <form id="niv-form">
+        <div id="common-checks-section">
+            <h2>1. Common Order Checks</h2>
+            <div class="question-group">
+                <p>SWO (Rx) present?</p>
+                <label><input type="radio" name="swo" value="yes"> Yes</label>
+                <label><input type="radio" name="swo" value="no"> No</label>
+            </div>
+            <div class="question-group hidden" data-dependency="swo" data-value="yes">
+                <p>Detailed item description (“non-invasive ventilator” / “NIV”)?</p>
+                <label><input type="radio" name="description" value="yes"> Yes</label>
+                <label><input type="radio" name="description" value="no"> No</label>
+            </div>
+            <div class="question-group hidden" data-dependency="description" data-value="yes">
+                <p>Order says PRN / “as needed”?</p>
+                <label><input type="radio" name="prn" value="yes"> Yes</label>
+                <label><input type="radio" name="prn" value="no"> No</label>
+            </div>
+        </div>
+
+        <div id="diagnosis-section" class="hidden">
+            <h2>Diagnosis</h2>
+            <div class="question-group">
+                <p>Diagnosis is one of:</p>
+                <label><input type="radio" name="diagnosis" value="nmd"> Neuromuscular Disease (NMD)</label>
+                <label><input type="radio" name="diagnosis" value="trd"> Thoracic Restrictive Disease (TRD)</label>
+                <label><input type="radio" name="diagnosis" value="copd"> COPD</label>
+            </div>
+        </div>
+
+        <div id="nmd-path-section" class="hidden">
+            <h2>2. Neuromuscular Disease Path</h2>
+            <div class="question-group">
+                <p>Pick at least one qualifying lab:</p>
+                <label><input type="checkbox" name="nmd_labs"> ABG with pCO₂ > 45 mmHg</label>
+                <label><input type="checkbox" name="nmd_labs"> Spirometry FVC ≤ 50%</label>
+                <label><input type="checkbox" name="nmd_labs"> PFT with MD interpretation correlating to NMD</label>
+                <label><input type="checkbox" name="nmd_labs"> MIP (max inspiratory pressure) &lt; –60 cm H₂O</label>
+                <label><input type="checkbox" name="nmd_labs"> End-tidal CO₂ (ETCO₂) > 43 mmHg (≥ 5 min cumulative)</label>
+                <label><input type="checkbox" name="nmd_labs"> Transcutaneous CO₂ (TcCO₂) > 50 mmHg</label>
+                <label><input type="checkbox" name="nmd_labs"> VBG pCO₂ > 51 mmHg</label>
+                <button type="button" id="nmd-check">Check NMD Qualification</button>
+            </div>
+        </div>
+        
+        <div id="trd-path-section" class="hidden">
+            <h2>3. Thoracic Restrictive Disease Path</h2>
+            <div class="question-group">
+                <p>Is obesity hypoventilation syndrome (OHS) the root cause?</p>
+                <label><input type="radio" name="ohs" value="yes"> Yes</label>
+                <label><input type="radio" name="ohs" value="no"> No</label>
+            </div>
+            <div id="trd-ohs-questions" class="hidden sub-group">
+                <div class="question-group">
+                    <p>BMI > 40?</p>
+                    <label><input type="radio" name="bmi_40" value="yes"> Yes</label>
+                    <label><input type="radio" name="bmi_40" value="no"> No</label>
+                </div>
+                <div class="question-group hidden" data-dependency="bmi_40" data-value="yes">
+                    <p>BMI specifically charted?</p>
+                    <label><input type="radio" name="bmi_charted" value="yes"> Yes</label>
+                    <label><input type="radio" name="bmi_charted" value="no"> No</label>
+                </div>
+            </div>
+            <div id="trd-labs-section" class="hidden">
+                 <div class="question-group">
+                    <p>Pick at least one qualifying lab:</p>
+                    <label><input type="checkbox" name="trd_labs"> ABG pCO₂ > 45 mmHg</label>
+                    <label><input type="checkbox" name="trd_labs"> Spirometry FVC ≤ 50%</label>
+                    <label><input type="checkbox" name="trd_labs"> PFT with MD interpretation correlating to TRD</label>
+                    <label><input type="checkbox" name="trd_labs"> ETCO₂ > 43 mmHg (≥ 5 min)</label>
+                    <label><input type="checkbox" name="trd_labs"> TcCO₂ > 50 mmHg</label>
+                    <label><input type="checkbox" name="trd_labs"> VBG pCO₂ > 51 mmHg</label>
+                    <button type="button" id="trd-check">Check TRD Qualification</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="copd-path-section" class="hidden">
+            <h2>4. COPD Path</h2>
+            <div class="question-group">
+                <p>A) Chronic Respiratory Failure due to COPD?</p>
+                <label><input type="radio" name="copd_crf" value="yes"> Yes</label>
+                <label><input type="radio" name="copd_crf" value="no"> No</label>
+            </div>
+            <div id="copd-branch-choice" class="hidden sub-group">
+                <p>Inpatient (hospital discharge) or Outpatient (home)?</p>
+                <label><input type="radio" name="copd_setting" value="inpatient"> Inpatient</label>
+                <label><input type="radio" name="copd_setting" value="outpatient"> Outpatient</label>
+            </div>
+            <div id="copd-inpatient-section" class="hidden">
+                <h3>B1) Inpatient (hospital discharge)</h3>
+                <div class="question-group">
+                    <p>Need > RAD capabilities during stay?</p>
+                    <label><input type="radio" name="inpatient_rad" value="yes"> Yes</label>
+                    <label><input type="radio" name="inpatient_rad" value="no"> No</label>
+                </div>
+                 <div class="question-group hidden" data-dependency="inpatient_rad" data-value="yes">
+                    <p>Used ventilator/RAD in 24 h pre-discharge?</p>
+                    <label><input type="radio" name="inpatient_used" value="yes"> Yes</label>
+                    <label><input type="radio" name="inpatient_used" value="no"> No</label>
+                </div>
+                <div class="question-group hidden" data-dependency="inpatient_used" data-value="yes">
+                    <p>Risk of rapid symptom exacerbation or rising PaCO₂?</p>
+                    <label><input type="radio" name="inpatient_risk" value="yes"> Yes</label>
+                    <label><input type="radio" name="inpatient_risk" value="no"> No</label>
+                </div>
+                <div class="question-group hidden" data-dependency="inpatient_risk" data-value="yes">
+                    <p>Volume mode prescribed / protocol set?</p>
+                    <label><input type="radio" name="inpatient_volume" value="yes"> Yes</label>
+                    <label><input type="radio" name="inpatient_volume" value="no"> No</label>
+                </div>
+            </div>
+            <div id="copd-outpatient-section" class="hidden">
+                <h3>B2) Outpatient (home)</h3>
+                <div class="question-group">
+                    <p>ABG pCO₂ ≥ 52 mmHg drawn awake on prescribed FiO₂?</p>
+                    <label><input type="radio" name="outpatient_abg" value="yes"> Yes</label>
+                    <label><input type="radio" name="outpatient_abg" value="no"> No</label>
+                </div>
+                <div class="question-group hidden" data-dependency="outpatient_abg" data-value="yes">
+                    <p>Sleep apnea NOT primary cause?</p>
+                    <label><input type="radio" name="outpatient_sleep_apnea" value="yes"> Yes</label>
+                    <label><input type="radio" name="outpatient_sleep_apnea" value="no"> No</label>
+                </div>
+                <div class="question-group hidden" data-dependency="outpatient_sleep_apnea" data-value="yes">
+                    <p>At least one therapy criterion met?</p>
+                    <label><input type="checkbox" name="outpatient_therapy"> O₂ at FiO₂ ≥ 36% or ≥ 4 L nasal</label>
+                    <label><input type="checkbox" name="outpatient_therapy"> Ventilatory support > 8 h/24 h</label>
+                    <label><input type="checkbox" name="outpatient_therapy"> NIV alarms & internal battery required for safety</label>
+                    <label><input type="checkbox" name="outpatient_therapy"> RAD backup rate fails to achieve improvement</label>
+                    <button type="button" id="copd-outpatient-check">Check Therapy Criterion</button>
+                </div>
+                <div class="question-group hidden" id="copd_outpatient_volume_q">
+                    <p>Volume mode prescribed / protocol set?</p>
+                    <label><input type="radio" name="outpatient_volume" value="yes"> Yes</label>
+                    <label><input type="radio" name="outpatient_volume" value="no"> No</label>
+                </div>
+            </div>
+        </div>
+
+        <div id="final-checklist-section" class="hidden">
+            <h2>5. Final Approval Checklist</h2>
+            <div class="question-group">
+                <p>Chart notes & qualifying test results within 12 months?</p>
+                <label><input type="radio" name="final_1" value="yes"> Yes</label>
+                <label><input type="radio" name="final_1" value="no"> No</label>
+            </div>
+            <div class="question-group">
+                <p>Evaluated/treated for approved category?</p>
+                <label><input type="radio" name="final_2" value="yes"> Yes</label>
+                <label><input type="radio" name="final_2" value="no"> No</label>
+            </div>
+            <div class="question-group">
+                <p>Chart supports need for ventilator therapy?</p>
+                <label><input type="radio" name="final_3" value="yes"> Yes</label>
+                <label><input type="radio" name="final_3" value="no"> No</label>
+            </div>
+            <div class="question-group">
+                <p>Patient needs exceed what a RAD can deliver?</p>
+                <label><input type="radio" name="final_4" value="yes"> Yes</label>
+                <label><input type="radio" name="final_4" value="no"> No</label>
+            </div>
+            <div class="question-group">
+                <p>No conflicting documentation on condition progression?</p>
+                <label><input type="radio" name="final_5" value="yes"> Yes</label>
+                <label><input type="radio" name="final_5" value="no"> No</label>
+            </div>
+            <div class="question-group">
+                <p>No interchangeable use of “BiPAP” vs. “ventilator”?</p>
+                <label><input type="radio" name="final_6" value="yes"> Yes</label>
+                <label><input type="radio" name="final_6" value="no"> No</label>
+            </div>
+            <div class="question-group">
+                <p>Any terminology conflicts are attested by physician?</p>
+                <label><input type="radio" name="final_7" value="yes"> Yes</label>
+                <label><input type="radio" name="final_7" value="no"> No</label>
+            </div>
+        </div>
+    </form>
+
+    <div id="result" class="hidden"></div>
+    <button id="start-over" type="button">Start Over</button>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('niv-form');
+        const resultDiv = document.getElementById('result');
+        const startOverBtn = document.getElementById('start-over');
+        
+        const allSections = [
+            'common-checks-section', 'diagnosis-section', 'nmd-path-section', 
+            'trd-path-section', 'copd-path-section', 'final-checklist-section'
+        ];
+        const allPathSections = ['nmd-path-section', 'trd-path-section', 'copd-path-section'];
+
+        const dependentQuestions = document.querySelectorAll('[data-dependency]');
+
+        function hideAllSections() {
+            allSections.forEach(id => document.getElementById(id).classList.add('hidden'));
+        }
+
+        function showResult(message, type) {
+            resultDiv.textContent = message;
+            resultDiv.className = type;
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function resetCalculator() {
+            form.reset();
+            hideAllSections();
+            document.getElementById('common-checks-section').classList.remove('hidden');
+            resultDiv.className = 'hidden';
+            dependentQuestions.forEach(q => q.classList.add('hidden'));
+            // Hide sub-sections specifically
+            document.getElementById('trd-ohs-questions').classList.add('hidden');
+            document.getElementById('trd-labs-section').classList.add('hidden');
+            document.getElementById('copd-branch-choice').classList.add('hidden');
+            document.getElementById('copd-inpatient-section').classList.add('hidden');
+            document.getElementById('copd-outpatient-section').classList.add('hidden');
+            document.getElementById('copd_outpatient_volume_q').classList.add('hidden');
+        }
+
+        function getRadioValue(name) {
+            const radio = form.querySelector(`input[name="${name}"]:checked`);
+            return radio ? radio.value : null;
+        }
+
+        function checkFinalApproval() {
+            const finalQuestions = ['final_1', 'final_2', 'final_3', 'final_4', 'final_5', 'final_6', 'final_7'];
+            const allYes = finalQuestions.every(q => getRadioValue(q) === 'yes');
+            const anyNo = finalQuestions.some(q => getRadioValue(q) === 'no');
+
+            if (anyNo) {
+                showResult('NOT APPROVED', 'not-approved');
+                return;
+            }
+            if (allYes) {
+                showResult('APPROVED', 'approved');
+                return;
+            }
+            // If neither, just clear the result
+            resultDiv.className = 'hidden';
+        }
+
+        form.addEventListener('change', function(event) {
+            const target = event.target;
+            
+            // Unhide dependent questions
+            const dependent = form.querySelector(`[data-dependency="${target.name}"]`);
+            if (dependent && target.value === dependent.dataset.value) {
+                dependent.classList.remove('hidden');
+            } else if(dependent) {
+                // if the answer changes to something else, re-hide it and reset its children
+                const questionsToReset = dependent.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+                questionsToReset.forEach(q => {
+                   if(q.type === 'radio') q.checked = false;
+                   if(q.type === 'checkbox') q.checked = false;
+                   const childDependent = form.querySelector(`[data-dependency="${q.name}"]`);
+                   if(childDependent) childDependent.classList.add('hidden');
+                });
+                dependent.classList.add('hidden');
+            }
+
+            // --- Main Logic Flow ---
+            resultDiv.className = 'hidden'; // Clear result on any change
+
+            // 1. Common Order Checks
+            if (getRadioValue('swo') === 'no' || getRadioValue('description') === 'no' || getRadioValue('prn') === 'yes') {
+                showResult('REJECT', 'rejected');
+                return;
+            }
+            if (getRadioValue('prn') === 'no') {
+                document.getElementById('diagnosis-section').classList.remove('hidden');
+            }
+
+            // 2. Diagnosis Path
+            const diagnosis = getRadioValue('diagnosis');
+            if (diagnosis) {
+                allPathSections.forEach(id => document.getElementById(id).classList.add('hidden'));
+                document.getElementById(`${diagnosis}-path-section`).classList.remove('hidden');
+            }
+
+            // 3. TRD Path Logic
+            if (target.name === 'ohs') {
+                document.getElementById('trd-ohs-questions').classList.toggle('hidden', target.value !== 'yes');
+                document.getElementById('trd-labs-section').classList.toggle('hidden', target.value !== 'no');
+            }
+            if(getRadioValue('bmi_40') === 'no' || getRadioValue('bmi_charted') === 'no'){
+                showResult('REJECT', 'rejected');
+                return;
+            }
+            if(getRadioValue('bmi_charted') === 'yes'){
+                 document.getElementById('trd-labs-section').classList.remove('hidden');
+            }
+            
+            // 4. COPD Path Logic
+            if (getRadioValue('copd_crf') === 'no') {
+                showResult('REJECT', 'rejected');
+                return;
+            }
+            if (getRadioValue('copd_crf') === 'yes') {
+                document.getElementById('copd-branch-choice').classList.remove('hidden');
+            }
+            const copdSetting = getRadioValue('copd_setting');
+            if(copdSetting){
+                document.getElementById('copd-inpatient-section').classList.toggle('hidden', copdSetting !== 'inpatient');
+                document.getElementById('copd-outpatient-section').classList.toggle('hidden', copdSetting !== 'outpatient');
+            }
+            // Inpatient
+            if (getRadioValue('inpatient_rad') === 'no' || getRadioValue('inpatient_used') === 'no' || getRadioValue('inpatient_risk') === 'no' || getRadioValue('inpatient_volume') === 'no') {
+                showResult('REJECT', 'rejected');
+                return;
+            }
+            if (getRadioValue('inpatient_volume') === 'yes') {
+                 document.getElementById('final-checklist-section').classList.remove('hidden');
+            }
+            // Outpatient
+            if (getRadioValue('outpatient_abg') === 'no' || getRadioValue('outpatient_sleep_apnea') === 'no' || getRadioValue('outpatient_volume') === 'no') {
+                showResult('REJECT', 'rejected');
+                return;
+            }
+             if (getRadioValue('outpatient_volume') === 'yes') {
+                 document.getElementById('final-checklist-section').classList.remove('hidden');
+            }
+
+
+            // 5. Final Checklist
+            if (target.name.startsWith('final_')) {
+                checkFinalApproval();
+            }
+        });
+        
+        // Button click handlers
+        document.getElementById('nmd-check').addEventListener('click', function() {
+            const anyChecked = form.querySelector('input[name="nmd_labs"]:checked');
+            if (anyChecked) {
+                document.getElementById('final-checklist-section').classList.remove('hidden');
+                resultDiv.className = 'hidden';
+            } else {
+                showResult('REJECT', 'rejected');
+            }
+        });
+
+        document.getElementById('trd-check').addEventListener('click', function() {
+            const anyChecked = form.querySelector('input[name="trd_labs"]:checked');
+            if (anyChecked) {
+                document.getElementById('final-checklist-section').classList.remove('hidden');
+                resultDiv.className = 'hidden';
+            } else {
+                showResult('REJECT', 'rejected');
+            }
+        });
+
+        document.getElementById('copd-outpatient-check').addEventListener('click', function() {
+             const anyChecked = form.querySelector('input[name="outpatient_therapy"]:checked');
+             if (anyChecked) {
+                document.getElementById('copd_outpatient_volume_q').classList.remove('hidden');
+                resultDiv.className = 'hidden';
+            } else {
+                showResult('REJECT', 'rejected');
+            }
+        });
+
+        startOverBtn.addEventListener('click', resetCalculator);
+        
+        // Initial state
+        resetCalculator();
+    });
+</script>
+
+</body>
+</html>
